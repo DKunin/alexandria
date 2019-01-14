@@ -6,7 +6,7 @@ const node_uid = require('node-uid')
 const saltRounds = 10;
 
 let db = new sqlite3.Database(
-    path.resolve(__dirname, './db/books.db'),
+    path.resolve(__dirname, '../db/books.db'),
     sqlite3.OPEN_READWRITE,
     err => {
         if (err) {
@@ -48,6 +48,10 @@ function getBooks() {
     });
 }
 
+function getBook() {
+    return null
+}
+
 function newBook(book) {
     return new Promise(async (resolve, reject) => {
         db.run(
@@ -63,6 +67,10 @@ function newBook(book) {
                 }
             );
     });
+}
+
+function editBook(book) {
+    return null
 }
 
 module.exports = {
