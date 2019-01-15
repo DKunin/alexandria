@@ -1,9 +1,9 @@
 // Pages
-import auth from './auth.js';
+import books from './books.js';
 
 const routes = [
-    { path: '/', redirect: '/auth' },
-    { path: '/auth', component: auth }
+    { path: '/', redirect: '/books' },
+    { path: '/books', component: books }
 ];
 
 const router = new VueRouter({ routes });
@@ -49,7 +49,6 @@ const store = new Vuex.Store({
                 .then(
                     response => {
                         if (response.status === 200) {
-                            console.log(response);
                             commit('setJwtToken', response.body.token);
                         }
                     },
@@ -62,7 +61,7 @@ const store = new Vuex.Store({
             console.log(state.token);
             Vue.http
                 .get(
-                    '/api/get-book',
+                    '/api/get-books',
                     {
                         headers: {
                             Authorization: `Bearer ${state.token}`
@@ -71,7 +70,7 @@ const store = new Vuex.Store({
                 )
                 .then(
                     response => {
-                        console.log(response)
+                        commit('setBooks', response.body);
                     },
                     response => {
                         console.log(response)
@@ -85,6 +84,9 @@ const store = new Vuex.Store({
         },
         setJwtToken(state, newJwt) {
             state.token = newJwt;
+        },
+        setBooks(state, books) {
+            state.books = books;
         }
     }
 });
@@ -92,6 +94,9 @@ const store = new Vuex.Store({
 const template = `
     <main>
         <h2>App</h2>
+        
+        <authForm></authForm>
+
         <router-view />
     </main>
 `;

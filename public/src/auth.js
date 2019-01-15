@@ -1,11 +1,11 @@
 const template = `
         <div>
+            {{username}}
             <form @submit="processCode">
                 <input type="login" v-model="login" />
                 <input type="code" v-if="loginAttempt" v-model="code" />
                 <button>Submit</button>
             </form>
-            <button @click="getBook"></button>
         </div>
     `;
 
@@ -19,6 +19,14 @@ const authView = {
     computed: {
         loginAttempt() {
             return this.$store.state.loginAttempt;
+        },
+        username() {
+            console.log(this.$store.state.token);
+            if (this.$store.state.token) {
+                
+                return JSON.parse(window.atob(this.$store.state.token.split('.')[1])).user.login;
+            }
+            return null
         }
     },
     template,
@@ -33,13 +41,7 @@ const authView = {
                     code: parseInt(this.code)
                 });
             }
-        },
-        getBook() {
-            this.$store.dispatch('getBooks');
         }
-    },
-    mounted() {
-        this.$store.dispatch('getBooks');
     }
 };
 

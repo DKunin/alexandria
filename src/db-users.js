@@ -1,12 +1,23 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
 const Chance = require('chance');
 const chance = new Chance();
 const logger = require('./logger');
+
+fs.exists(path.resolve(__dirname, '../db/users.db'), function(exists) {
+    if (!exists) {
+        fs.writeFileSync(
+            path.resolve(__dirname, '../db/users.db'),
+            '',
+            () => {}
+        );
+    }
+});
 
 let db = new sqlite3.Database(
     path.resolve(__dirname, '../db/users.db'),

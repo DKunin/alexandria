@@ -3,6 +3,18 @@
 const path = require('path');
 const sqlite3 = require('sqlite3').verbose();
 
+
+fs.exists(path.resolve(__dirname, '../db/logs.db'), function(exists) {
+    if (!exists) {
+        fs.writeFileSync(
+            path.resolve(__dirname, '../db/logs.db'),
+            '',
+            () => {}
+        );
+    }
+});
+
+
 let db = new sqlite3.Database(
     path.resolve(__dirname, '../db/logs.db'),
     sqlite3.OPEN_READWRITE,

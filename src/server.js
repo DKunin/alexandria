@@ -8,6 +8,7 @@ const express = require('express');
 const slackPost = require('./slack-post');
 const { SLACK_BOT_SERVICE, JWT_SECRET } = process.env;
 const dbUsers = require('./db-users');
+const dbBooks = require('./db-books');
 console.log(dbUsers);
 const app = express();
 app.use(cors());
@@ -87,8 +88,21 @@ const jwtValidateMiddleware = (req, res, next) => {
 //     res.send('home');
 // });
 
-app.get('/api/get-book', jwtValidateMiddleware, (req, res) => {
-    res.json({ ok: true });
+app.get('/api/get-books', jwtValidateMiddleware, (req, res) => {
+    dbBooks.getBooks().then(result => {
+        res.json(result);
+    });
+});
+
+app.post('/api/post-book', jwtValidateMiddleware, (req, res) => {
+    if (req.body) {
+        dbBooks.postBook(req.body).then(result => {
+            res.json(result);
+        });
+    } else {
+        res.json({ error : 'no body'});
+
+    }
 });
 
 app.listen(5000, () => console.log('Server started on port 5000'));
