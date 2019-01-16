@@ -55,6 +55,19 @@ function getBooks() {
     });
 }
 
+function findBook(query) {
+    return new Promise((resolve, reject) => {
+        db.all('SELECT * FROM books where name LIKE \'%' + query + '%\'', function(err, rows) {
+            if (err) {
+                console.log(err);
+                reject(err);
+                return;
+            }
+            resolve(rows);
+        });
+    });
+}
+
 function getBook() {
     return null;
 }
@@ -85,5 +98,6 @@ function editBook(book) {
 
 module.exports = {
     getBooks,
-    postBook
+    postBook,
+    findBook
 };

@@ -1,13 +1,21 @@
 const template = `
         <div>
-            <button @click="getBook">update</button>
+            <form @submit="searchBook">
+                <input type="text" v-model="query" />
+                <button>search</button>
+            </form>
             <div v-for="book in books">
                 {{ book.name }}
             </div>
         </div>
     `;
 
-const authView = {
+const booksView = {
+    data() {
+        return {
+            query: null
+        }
+    },
     computed: {
         books() {
             return this.$store.state.books;
@@ -17,6 +25,10 @@ const authView = {
     methods: {
         getBook() {
             this.$store.dispatch('getBooks');
+        },
+        searchBook(event) {
+            event.preventDefault();
+            this.$store.dispatch('searchBook', this.query);
         }
     },
     mounted() {
@@ -24,4 +36,4 @@ const authView = {
     }
 };
 
-export default authView;
+export default booksView;

@@ -1,7 +1,7 @@
 const template = `
         <div>
             {{username}}
-            <form @submit="processCode">
+            <form @submit="processCode" v-if="!username">
                 <input type="login" v-model="login" />
                 <input type="code" v-if="loginAttempt" v-model="code" />
                 <button>Submit</button>
@@ -21,7 +21,6 @@ const authView = {
             return this.$store.state.loginAttempt;
         },
         username() {
-            console.log(this.$store.state.token);
             if (this.$store.state.token) {
                 
                 return JSON.parse(window.atob(this.$store.state.token.split('.')[1])).user.login;

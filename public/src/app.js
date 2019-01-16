@@ -1,9 +1,11 @@
 // Pages
 import books from './books.js';
+import addBook from './add-book.js';
 
 const routes = [
     { path: '/', redirect: '/books' },
-    { path: '/books', component: books }
+    { path: '/books', component: books },
+    { path: '/add', component: addBook },
 ];
 
 const router = new VueRouter({ routes });
@@ -58,7 +60,6 @@ const store = new Vuex.Store({
                 );
         },
         getBooks: function({ commit, state }, pair) {
-            console.log(state.token);
             Vue.http
                 .get(
                     '/api/get-books',
@@ -73,7 +74,56 @@ const store = new Vuex.Store({
                         commit('setBooks', response.body);
                     },
                     response => {
-                        console.log(response)
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
+                        
+                    }
+                );
+        },
+        postBooks: function({ dispatch, commit, state }, book) {
+            Vue.http
+                .post(
+                    '/api/post-book',
+                    book,
+                    {
+                        headers: {
+                            Authorization: `Bearer ${state.token}`
+                        }
+                    }
+                )
+                .then(
+                    response => {
+                        dispatch('getBooks');
+                    },
+                    response => {
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
+                        
+                    }
+                );
+        },
+        searchBook: function({ commit, state }, query) {
+            Vue.http
+                .post(
+                    '/api/find-book',
+                    { query },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${state.token}`
+                        }
+                    }
+                )
+                .then(
+                    response => {
+                        commit('setBooks', response.body);
+                    },
+                    response => {
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
+                        
                     }
                 );
         }
@@ -84,6 +134,9 @@ const store = new Vuex.Store({
         },
         setJwtToken(state, newJwt) {
             state.token = newJwt;
+        },
+        resetAuth(state, newJwt) {
+            state.token = null;
         },
         setBooks(state, books) {
             state.books = books;
