@@ -5,7 +5,7 @@ import addBook from './add-book.js';
 const routes = [
     { path: '/', redirect: '/books' },
     { path: '/books', component: books },
-    { path: '/add', component: addBook },
+    { path: '/add', component: addBook }
 ];
 
 const router = new VueRouter({ routes });
@@ -26,7 +26,7 @@ const store = new Vuex.Store({
         loginAttempt: false
     },
     actions: {
-        getCode: function({ commit }, username) {
+        getCode({ commit }, username) {
             Vue.http
                 .post('/api/generate-code', {
                     username
@@ -42,7 +42,7 @@ const store = new Vuex.Store({
                     }
                 );
         },
-        validateCode: function({ commit }, pair) {
+        validateCode({ commit }, pair) {
             Vue.http
                 .post('/api/validate-code', {
                     login: pair.login,
@@ -59,16 +59,13 @@ const store = new Vuex.Store({
                     }
                 );
         },
-        getBooks: function({ commit, state }, pair) {
+        getBooks({ commit, state }, pair) {
             Vue.http
-                .get(
-                    '/api/get-books',
-                    {
-                        headers: {
-                            Authorization: `Bearer ${state.token}`
-                        }
+                .get('/api/get-books', {
+                    headers: {
+                        Authorization: `Bearer ${state.token}`
                     }
-                )
+                })
                 .then(
                     response => {
                         commit('setBooks', response.body);
@@ -77,21 +74,16 @@ const store = new Vuex.Store({
                         if (response.status === 401) {
                             commit('resetAuth');
                         }
-                        
                     }
                 );
         },
-        postBooks: function({ dispatch, commit, state }, book) {
+        postBooks({ dispatch, commit, state }, book) {
             Vue.http
-                .post(
-                    '/api/post-book',
-                    book,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${state.token}`
-                        }
+                .post('/api/post-book', book, {
+                    headers: {
+                        Authorization: `Bearer ${state.token}`
                     }
-                )
+                })
                 .then(
                     response => {
                         dispatch('getBooks');
@@ -100,11 +92,10 @@ const store = new Vuex.Store({
                         if (response.status === 401) {
                             commit('resetAuth');
                         }
-                        
                     }
                 );
         },
-        searchBook: function({ commit, state }, query) {
+        searchBook({ commit, state }, query) {
             Vue.http
                 .post(
                     '/api/find-book',
@@ -123,7 +114,39 @@ const store = new Vuex.Store({
                         if (response.status === 401) {
                             commit('resetAuth');
                         }
-                        
+                    }
+                );
+        },
+        checkoutBook({ commit, state, dispatch }, book_id) {
+            let login;
+            if (state.token) {
+                login = JSON.parse(window.atob(state.token.split('.')[1])).user
+                    .login;
+            }
+            if (!login) {
+                return null;
+            }
+            Vue.http
+                .post(
+                    '/api/checkout-book',
+                    {
+                        login,
+                        book_id
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${state.token}`
+                        }
+                    }
+                )
+                .then(
+                    response => {
+                        dispatch('getBooks');
+                    },
+                    response => {
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
                     }
                 );
         }

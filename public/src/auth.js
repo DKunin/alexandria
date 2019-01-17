@@ -22,7 +22,6 @@ const authView = {
         },
         username() {
             if (this.$store.state.token) {
-                
                 return JSON.parse(window.atob(this.$store.state.token.split('.')[1])).user.login;
             }
             return null

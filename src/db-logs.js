@@ -1,7 +1,9 @@
 'use strict';
 
 const path = require('path');
+const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
+const logger = require('./logger');
 
 
 fs.exists(path.resolve(__dirname, '../db/logs.db'), function(exists) {
@@ -35,10 +37,10 @@ db.run(
         action string NOT NULL
     );`,
     function() {
-        console.log(arguments);
+        logger.info(arguments);
     },
     function(err) {
-        console.log(err);
+        logger.error(err);
     }
 );
 

@@ -9,11 +9,17 @@ const slackPost = require('./slack-post');
 const { SLACK_BOT_SERVICE, JWT_SECRET } = process.env;
 const dbUsers = require('./db-users');
 const dbBooks = require('./db-books');
-console.log(dbUsers);
+const logger = require('./logger');
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
+
+app.use( (req, res, done) => {
+    logger.info(req.originalUrl);
+    done();
+});
 
 var testUser = { login: 'dkunin', code: '1234' };
 
@@ -88,7 +94,7 @@ const jwtValidateMiddleware = (req, res, next) => {
         jwt.verify(token, JWT_SECRET, { ignoreExpiration: true });
         next();
     } catch (err) {
-        console.log(err);
+        logger.error(err);
         res.send(401, { error: 'unauthorized' });
     }
 };
@@ -112,6 +118,16 @@ app.post('/api/post-book', jwtValidateMiddleware, (req, res) => {
 app.post('/api/find-book', jwtValidateMiddleware, (req, res) => {
     if (req.body) {
         dbBooks.findBook(req.body.query).then(result => {
+            res.json(result);
+        });
+    } else {
+        res.json({ error: 'no body' });
+    }
+});
+
+app.post('/api/checkout-book', jwtValidateMiddleware, (req, res) => {
+    if (req.body) {
+        dbBooks.checkoutBook(req.body.book_id, req.body.login).then(result => {
             res.json(result);
         });
     } else {

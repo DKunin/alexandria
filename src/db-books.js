@@ -3,7 +3,6 @@
 const path = require('path');
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
-const node_uid = require('node-uid');
 const logger = require('./logger');
 
 fs.exists(path.resolve(__dirname, '../db/books.db'), function(exists) {
@@ -21,11 +20,61 @@ let db = new sqlite3.Database(
     sqlite3.OPEN_READWRITE,
     err => {
         if (err) {
-            logger.info(err.message);
+            logger.error(err.message);
         }
         logger.info('Connected to the game database.');
     }
 );
+
+db.run(
+    `CREATE TABLE IF NOT EXISTS logs (
+        id integer PRIMARY KEY,
+        book_id string NOT NULL,
+        login string NOT NULL,
+        date int NOT NULL,
+        action string NOT NULL
+    );`,
+    function() {
+        logger.info(arguments);
+    },
+    function(err) {
+        logger.error(err);
+    }
+);
+
+function checkoutBook(bookId, login) {
+    return new Promise(async (resolve, reject) => {
+        db.run(
+            `INSERT INTO 
+                    logs(id, book_id, login, date, action)
+                    VALUES(${new Date().getTime()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkout')`,
+            function(err) {
+                logger.error(err)
+                if (err) {
+                    return reject(err.message);
+                }
+                resolve({});
+            }
+        );
+    });
+}
+
+function checkinBook(bookId, login) {
+    return new Promise(async (resolve, reject) => {
+        db.run(
+            `INSERT INTO 
+                    logs(id, book_id, login, date, action)
+                    VALUES(${new Date().getTime()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkin')`,
+            function(err) {
+                logger.error(err)
+                if (err) {
+                    return reject(err.message);
+                }
+                resolve({});
+            }
+        );
+    });
+}
 
 db.run(
     `CREATE TABLE IF NOT EXISTS books (
@@ -36,16 +85,16 @@ db.run(
         image string
     );`,
     function() {
-        console.log(arguments);
+        logger.info(arguments);
     },
     function(err) {
-        console.log(err);
+        logger.error(err);
     }
 );
 
 function getBooks() {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM books', function(err, rows) {
+        db.all('select b.book_id, b.name, b.link, b.image, l.login, l.date, l.action, l.book_id as log_id from books as b left join logs as l on log_id = b.book_id', function(err, rows) {
             if (err) {
                 reject(err);
                 return;
@@ -57,9 +106,9 @@ function getBooks() {
 
 function findBook(query) {
     return new Promise((resolve, reject) => {
-        db.all('SELECT * FROM books where name LIKE \'%' + query + '%\'', function(err, rows) {
+        db.all('select b.book_id, b.name, b.link, b.image, l.login, l.date, l.action, l.book_id as log_id from books as b left join logs as l on log_id = b.book_id where name LIKE \'%' + query + '%\'', function(err, rows) {
             if (err) {
-                console.log(err);
+                logger.err(err);
                 reject(err);
                 return;
             }
@@ -82,7 +131,7 @@ function postBook(book) {
             }','${book.link}','${book.image}'
                 )`,
             function(err) {
-                console.log(err)
+                logger.err(err)
                 if (err) {
                     return reject(err.message);
                 }
@@ -99,5 +148,7 @@ function editBook(book) {
 module.exports = {
     getBooks,
     postBook,
-    findBook
+    findBook,
+    checkoutBook,
+    checkinBook
 };

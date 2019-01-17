@@ -34,10 +34,10 @@ let db = new sqlite3.Database(
 db.run(
     'CREATE TABLE IF NOT EXISTS users (id string PRIMARY KEY, login string NOT NULL, code string NOT NULL);',
     function() {
-        console.log(arguments);
+        logger.info(arguments);
     },
     function(err) {
-        console.log(err);
+        logger.error(err);
     }
 );
 
@@ -60,7 +60,7 @@ function generateCodeForLogin(user) {
                 `INSERT INTO users(id, login, code) VALUES(${new Date().getTime()}, '${user}','${randomNumber}')`,
                 function(err) {
                     if (err) {
-                        console.log(err);
+                        logger.error(err);
                         return reject(err.message);
                     }
                     resolve(randomNumber);

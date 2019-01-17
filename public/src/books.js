@@ -5,7 +5,8 @@ const template = `
                 <button>search</button>
             </form>
             <div v-for="book in books">
-                {{ book.name }}
+                {{ book.book_id}} : {{ book.name }} ({{ book.login }})
+                <button @click="checkout(book.book_id)">Checkout</button>
             </div>
         </div>
     `;
@@ -25,6 +26,10 @@ const booksView = {
     methods: {
         getBook() {
             this.$store.dispatch('getBooks');
+        },
+        checkout(bookid) {
+            console.log(bookid)
+            this.$store.dispatch('checkoutBook', bookid);
         },
         searchBook(event) {
             event.preventDefault();
