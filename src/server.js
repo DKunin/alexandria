@@ -135,4 +135,14 @@ app.post('/api/checkout-book', jwtValidateMiddleware, (req, res) => {
     }
 });
 
+app.post('/api/checkin-book', jwtValidateMiddleware, (req, res) => {
+    if (req.body) {
+        dbBooks.checkinBook(req.body.book_id, req.body.login).then(result => {
+            res.json(result);
+        });
+    } else {
+        res.json({ error: 'no body' });
+    }
+});
+
 app.listen(5000, () => console.log('Server started on port 5000'));

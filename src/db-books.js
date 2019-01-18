@@ -15,6 +15,19 @@ fs.exists(path.resolve(__dirname, '../db/books.db'), function(exists) {
     }
 });
 
+const booksWithLogsQuery = `
+SELECT b.book_id,
+                b.name,
+                l.login,
+                max(l.date) as date,
+                l.action,
+                b.description,
+                l.book_id AS log_id
+FROM   books AS b
+       LEFT OUTER JOIN logs AS l
+                    ON log_id = b.book_id
+`;
+
 let db = new sqlite3.Database(
     path.resolve(__dirname, '../db/books.db'),
     sqlite3.OPEN_READWRITE,
@@ -94,7 +107,7 @@ db.run(
 
 function getBooks() {
     return new Promise((resolve, reject) => {
-        db.all('select b.book_id, b.name, b.link, b.image, l.login, l.date, l.action, l.book_id as log_id from books as b left join logs as l on log_id = b.book_id', function(err, rows) {
+        db.all(booksWithLogsQuery + ' GROUP BY b.book_id;', function(err, rows) {
             if (err) {
                 reject(err);
                 return;
@@ -106,7 +119,7 @@ function getBooks() {
 
 function findBook(query) {
     return new Promise((resolve, reject) => {
-        db.all('select b.book_id, b.name, b.link, b.image, l.login, l.date, l.action, l.book_id as log_id from books as b left join logs as l on log_id = b.book_id where name LIKE \'%' + query + '%\'', function(err, rows) {
+        db.all(booksWithLogsQuery + ' where name LIKE \'%' + query + '%\'' + ' GROUP BY b.book_id;', function(err, rows) {
             if (err) {
                 logger.err(err);
                 reject(err);

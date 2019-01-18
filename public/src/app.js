@@ -1,11 +1,13 @@
 // Pages
 import books from './books.js';
 import addBook from './add-book.js';
+import singleBook from './single-book.js';
 
 const routes = [
     { path: '/', redirect: '/books' },
     { path: '/books', component: books },
-    { path: '/add', component: addBook }
+    { path: '/add', component: addBook },
+    { path: '/book/:id', component: singleBook }
 ];
 
 const router = new VueRouter({ routes });
@@ -18,12 +20,21 @@ const jwtPersist = store => {
     });
 };
 
+const getUserName = (token) => {
+    if (token) {
+        return JSON.parse(window.atob(token.split('.')[1])).user.login;
+    }
+    return null;
+}
+const storedToken = JSON.parse(localStorage.getItem('token')) || null;
+
 const store = new Vuex.Store({
     plugins: [jwtPersist],
     state: {
         books: [],
-        token: JSON.parse(localStorage.getItem('token')) || null,
-        loginAttempt: false
+        token: storedToken,
+        loginAttempt: false,
+        user: getUserName(storedToken)
     },
     actions: {
         getCode({ commit }, username) {
@@ -120,8 +131,7 @@ const store = new Vuex.Store({
         checkoutBook({ commit, state, dispatch }, book_id) {
             let login;
             if (state.token) {
-                login = JSON.parse(window.atob(state.token.split('.')[1])).user
-                    .login;
+                login = getUserName(state.token);
             }
             if (!login) {
                 return null;
@@ -149,6 +159,38 @@ const store = new Vuex.Store({
                         }
                     }
                 );
+        },
+        checkinBook({ commit, state, dispatch }, book_id) {
+            let login;
+            if (state.token) {
+                login = getUserName(state.token);
+            }
+            if (!login) {
+                return null;
+            }
+            Vue.http
+                .post(
+                    '/api/checkin-book',
+                    {
+                        login,
+                        book_id
+                    },
+                    {
+                        headers: {
+                            Authorization: `Bearer ${state.token}`
+                        }
+                    }
+                )
+                .then(
+                    response => {
+                        dispatch('getBooks');
+                    },
+                    response => {
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
+                    }
+                );
         }
     },
     mutations: {
@@ -156,6 +198,8 @@ const store = new Vuex.Store({
             state.loginAttempt = true;
         },
         setJwtToken(state, newJwt) {
+
+            
             state.token = newJwt;
         },
         resetAuth(state, newJwt) {
@@ -183,8 +227,8 @@ const app = {
     template,
     store,
     name: 'app',
-    data() {
-        return {};
+    mounted() {
+        this.$store.dispatch('getBooks');
     }
 };
 

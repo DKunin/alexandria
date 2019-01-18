@@ -5,8 +5,12 @@ const template = `
                 <button>search</button>
             </form>
             <div v-for="book in books">
-                {{ book.book_id}} : {{ book.name }} ({{ book.login }})
-                <button @click="checkout(book.book_id)">Checkout</button>
+                <router-link :to="'book/' + book.book_id">{{ book.name }}</router-link> 
+                
+                <div v-if="book.action === 'checkout'">сейчас у: {{ book.login }}</div>
+                <div v-if="book.action === 'checkin'">последний брал:{{ book.login }}</div>
+                <div v-if="!book.action">еще никто не брал</div>
+                
             </div>
         </div>
     `;
@@ -27,17 +31,13 @@ const booksView = {
         getBook() {
             this.$store.dispatch('getBooks');
         },
-        checkout(bookid) {
-            console.log(bookid)
-            this.$store.dispatch('checkoutBook', bookid);
+        checkin(bookid) {
+            this.$store.dispatch('checkinBook', bookid);
         },
         searchBook(event) {
             event.preventDefault();
             this.$store.dispatch('searchBook', this.query);
         }
-    },
-    mounted() {
-        this.$store.dispatch('getBooks');
     }
 };
 
