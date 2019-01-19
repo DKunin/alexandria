@@ -27,7 +27,7 @@ let db = new sqlite3.Database(
             throw new Error(err);
             logger.info(err.message);
         }
-        logger.info('Connected to the game database.');
+        logger.info('Connected to the useres database.');
     }
 );
 

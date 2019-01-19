@@ -22,6 +22,8 @@ SELECT b.book_id,
                 max(l.date) as date,
                 l.action,
                 b.description,
+                b.genre,
+                b.author,
                 l.book_id AS log_id
 FROM   books AS b
        LEFT OUTER JOIN logs AS l
@@ -35,7 +37,7 @@ let db = new sqlite3.Database(
         if (err) {
             logger.error(err.message);
         }
-        logger.info('Connected to the game database.');
+        logger.info('Connected to the books database.');
     }
 );
 
@@ -62,7 +64,7 @@ function checkoutBook(bookId, login) {
                     logs(id, book_id, login, date, action)
                     VALUES(${new Date().getTime()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkout')`,
             function(err) {
-                logger.error(err)
+                logger.error(err);
                 if (err) {
                     return reject(err.message);
                 }
@@ -79,7 +81,7 @@ function checkinBook(bookId, login) {
                     logs(id, book_id, login, date, action)
                     VALUES(${new Date().getTime()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkin')`,
             function(err) {
-                logger.error(err)
+                logger.error(err);
                 if (err) {
                     return reject(err.message);
                 }
@@ -94,6 +96,8 @@ db.run(
         book_id integer PRIMARY KEY, 
         name string NOT NULL,
         description string,
+        genre string,
+        author string,
         link string, 
         image string
     );`,
@@ -107,7 +111,10 @@ db.run(
 
 function getBooks() {
     return new Promise((resolve, reject) => {
-        db.all(booksWithLogsQuery + ' GROUP BY b.book_id;', function(err, rows) {
+        db.all(booksWithLogsQuery + ' GROUP BY b.book_id;', function(
+            err,
+            rows
+        ) {
             if (err) {
                 reject(err);
                 return;
@@ -119,14 +126,47 @@ function getBooks() {
 
 function findBook(query) {
     return new Promise((resolve, reject) => {
-        db.all(booksWithLogsQuery + ' where name LIKE \'%' + query + '%\'' + ' GROUP BY b.book_id;', function(err, rows) {
-            if (err) {
-                logger.err(err);
-                reject(err);
-                return;
+        db.all(
+            booksWithLogsQuery +
+                " where name LIKE '%" +
+                query +
+                "%'" +
+                ' GROUP BY b.book_id;',
+            function(err, rows) {
+                if (err) {
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(rows);
             }
-            resolve(rows);
-        });
+        );
+    });
+}
+
+function getBookLogs(bookId) {
+    return new Promise((resolve, reject) => {
+        db.all(
+            `SELECT b.book_id,
+                b.name,
+                l.login,
+                l.date,
+                l.action,
+                b.description,
+                l.book_id AS log_id
+FROM   books AS b
+       LEFT OUTER JOIN logs AS l
+                    ON log_id = b.book_id
+where b.book_id = ${bookId};`,
+            function(err, rows) {
+                if (err) {
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(rows);
+            }
+        );
     });
 }
 
@@ -138,13 +178,11 @@ function postBook(book) {
     return new Promise(async (resolve, reject) => {
         db.run(
             `INSERT INTO 
-                    books(book_id, name, description, link, image)
-                    VALUES(${new Date().getTime()}, '${book.name}','${
-                book.description
-            }','${book.link}','${book.image}'
+                    books(book_id, name, description, genre, author, link, image)
+                    VALUES(${new Date().getTime()}, '${book.name}','${book.description}','${book.genre}','${book.author}', '${book.link}','${book.image}'
                 )`,
             function(err) {
-                logger.err(err)
+                logger.error(err);
                 if (err) {
                     return reject(err.message);
                 }
@@ -163,5 +201,6 @@ module.exports = {
     postBook,
     findBook,
     checkoutBook,
-    checkinBook
+    checkinBook,
+    getBookLogs
 };

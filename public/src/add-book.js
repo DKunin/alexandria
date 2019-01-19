@@ -3,6 +3,13 @@ const template = `
             <form @submit="postBook">
                 <div><label for="">Name: <input type="text" v-model="name" /></label></div>
                 <div><label for="">Description: <textarea  v-model="description" /></label></div>
+                <div><label for="">Genre: <select  v-model="genre">
+                    <option value="Разработка">Разработка</option>
+                    <option value="Менеджмент">Менеджмент</option>
+                    <option value="Маркетинг">Маркетинг</option>
+                    <option value="Психология">Психология</option>
+                <select></label></div>
+                <div><label for="">Author: <input type="text" v-model="author" /></label></div>
                 <div><label for="">Link<input type="text" v-model="link" /></label></div>
                 <div><label for="">Image<input type="text" v-model="image" /></label></div>
                 <button>Send</button>
@@ -13,10 +20,12 @@ const template = `
 const addBook = {
     data() {
         return {
-            name: '',
             description: '',
-            link: '',
-            image: ''
+            author: '',
+            genre: '',
+            image: '',
+            name: '',
+            link: ''
         };
     },
     computed: {},
@@ -28,6 +37,8 @@ const addBook = {
             this.$store.dispatch('postBooks', {
                 name: this.name,
                 description: this.description,
+                author: this.author,
+                genre: this.genre,
                 link: this.link,
                 image: this.image
             });

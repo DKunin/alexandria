@@ -39,6 +39,7 @@ app.post('/api/generate-code', (req, res) => {
             });
         })
         .catch(error => {
+            logger.error(error)
             res.status(403).send({
                 error: error.message
             });
@@ -140,6 +141,24 @@ app.post('/api/checkin-book', jwtValidateMiddleware, (req, res) => {
         dbBooks.checkinBook(req.body.book_id, req.body.login).then(result => {
             res.json(result);
         });
+    } else {
+        res.json({ error: 'no body' });
+    }
+});
+
+app.post('/api/book-log', jwtValidateMiddleware, (req, res) => {
+    if (req.body) {
+        dbBooks.getBookLogs(req.body.book_id).then(result => {
+            res.json(result);
+        });
+    } else {
+        res.json({ error: 'no body' });
+    }
+});
+
+app.get('/messages/:login', jwtValidateMiddleware, (req, res) => {
+    if (req.body) {
+        res.json({ error: 'in development' })
     } else {
         res.json({ error: 'no body' });
     }
