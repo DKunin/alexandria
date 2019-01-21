@@ -24,14 +24,14 @@ app.use( (req, res, done) => {
 var testUser = { login: 'dkunin', code: '1234' };
 
 app.post('/api/generate-code', (req, res) => {
-    const userName = req.body.username;
+    const userName = req.body.username.toLowerCase();
 
     dbUsers
         .generateCodeForLogin(userName)
         .then(generatedCode => {
             slackPost({
                 text: generatedCode,
-                channel: '@dkunin',
+                channel: '@' + userName,
                 path: SLACK_BOT_SERVICE
             });
             res.status(200).send({
