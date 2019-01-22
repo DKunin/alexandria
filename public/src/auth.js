@@ -12,7 +12,7 @@ const template = `
                           </div>
                           <div class="field-body">
                             <button class="button is-light">
-                                <span v-if="!loginAttempt">Получить код в slack</span>
+                                <span v-if="!loginAttempt">Получить ссылку в Slack</span>
                                 <span v-if="loginAttempt">Подтвердить код</span>
                             </button>
                           </div>
@@ -48,10 +48,18 @@ const authView = {
                 this.$store.dispatch('getCode', this.login);
             } else {
                 this.$store.dispatch('validateCode', {
-                    login: this.login,
+                    login: this.loginAttempt || this.login,
                     code: parseInt(this.code)
                 });
             }
+        }
+    },
+    mounted() {
+        if(this.$route.query.code) {
+            this.$store.dispatch('validateCode', {
+                login: this.loginAttempt,
+                code: parseInt(this.$route.query.code)
+            });
         }
     }
 };

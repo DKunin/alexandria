@@ -16,7 +16,7 @@ const template = `
                     <div class="media">
                       <div class="media-content">
                         <p class="title is-4"><router-link :to="'book/' + book.book_id">{{ book.name }}</router-link></p>
-                        <p class="subtitle is-6">{{ book.author }}, {{ book.genre }}</p>
+                        <p class="subtitle is-6">{{ ganreAndAuthor(book) }}</p>
                       </div>
                     </div>
 
@@ -29,8 +29,8 @@ const template = `
                     <footer class="card-footer">
                         <p class="card-footer-item">
                           <span>
-                            <div v-if="book.action === 'checkout'">сейчас у <a target="_blank" :href="'messages/@' + book.login">@{{ book.login }}</a></div>
-                            <div v-if="book.action === 'checkin'">последний брал @{{ book.login }}</div>
+                            <div v-if="book.action === 'checkout'">сейчас у <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
+                            <div v-if="book.action === 'checkin'">последний брал <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
                             <div v-if="!book.action">еще никто не брал</div>
                           </span>
                         </p>
@@ -72,8 +72,22 @@ const booksView = {
         searchBook(event) {
             event.preventDefault();
             this.$store.dispatch('searchBook', this.query);
+        },
+        ganreAndAuthor(book) {
+            return [book.author, book.genre].filter(Boolean).join(',');
+        },
+        handleScroll() {
+            if((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+                this.$store.dispatch('getBooks');
+            }
         }
-    }
+    },
+    mounted() {
+        window.addEventListener('scroll', this.handleScroll)
+    },
+    beforeDestroy() {
+        window.removeEventListener('scroll', this.handleScroll)
+  }
 };
 
 export default booksView;

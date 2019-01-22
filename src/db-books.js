@@ -4,6 +4,8 @@ const path = require('path');
 const fs = require('fs');
 const sqlite3 = require('sqlite3').verbose();
 const logger = require('./logger');
+var Chance = require('chance');
+var chance = new Chance();
 
 fs.exists(path.resolve(__dirname, '../db/books.db'), function(exists) {
     if (!exists) {
@@ -23,6 +25,7 @@ SELECT b.book_id,
                 l.action,
                 b.description,
                 b.genre,
+                b.link,
                 b.author,
                 l.book_id AS log_id
 FROM   books AS b
@@ -62,7 +65,7 @@ function checkoutBook(bookId, login) {
         db.run(
             `INSERT INTO 
                     logs(id, book_id, login, date, action)
-                    VALUES(${new Date().getTime()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkout')`,
+                    VALUES(${chance.natural()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkout')`,
             function(err) {
                 logger.error(err);
                 if (err) {
@@ -79,7 +82,7 @@ function checkinBook(bookId, login) {
         db.run(
             `INSERT INTO 
                     logs(id, book_id, login, date, action)
-                    VALUES(${new Date().getTime()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkin')`,
+                    VALUES(${chance.natural()}, ${bookId}, '${login}', ${new Date().getTime()}, 'checkin')`,
             function(err) {
                 logger.error(err);
                 if (err) {
@@ -109,9 +112,9 @@ db.run(
     }
 );
 
-function getBooks() {
+function getBooks(page = 0) {
     return new Promise((resolve, reject) => {
-        db.all(booksWithLogsQuery + ' GROUP BY b.book_id;', function(
+        db.all(booksWithLogsQuery + `GROUP BY b.book_id LIMIT ${page}, 20;`, function(
             err,
             rows
         ) {
@@ -119,7 +122,7 @@ function getBooks() {
                 reject(err);
                 return;
             }
-            resolve(rows);
+            resolve(rows.filter(singleBook => singleBook.name !== ''));
         });
     });
 }
@@ -179,7 +182,7 @@ function postBook(book) {
         db.run(
             `INSERT INTO 
                     books(book_id, name, description, genre, author, link, image)
-                    VALUES(${new Date().getTime()}, '${book.name}','${book.description}','${book.genre}','${book.author}', '${book.link}','${book.image}'
+                    VALUES(${chance.natural()}, '${book.name}','${book.description}','${book.genre}','${book.author}', '${book.link}','${book.image}'
                 )`,
             function(err) {
                 logger.error(err);

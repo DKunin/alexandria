@@ -20,11 +20,23 @@ const jwtPersist = store => {
     });
 };
 
+const usernamePersist = store => {
+    store.subscribe((mutation, state) => {
+        if (mutation.type === 'inProgressOfAuth') {
+            localStorage.setItem('loginAttempt', state.loginAttempt);
+        }
+    });
+};
+
 const getUserName = token => {
     if (token) {
         return JSON.parse(window.atob(token.split('.')[1])).user.login;
     }
     return null;
+};
+
+const getLoginAttempt = () => {
+    return localStorage.getItem('loginAttempt') || false;
 };
 
 const storedToken = JSON.parse(localStorage.getItem('token')) || null;
@@ -38,11 +50,12 @@ const generateHeaders = token => {
 };
 
 const store = new Vuex.Store({
-    plugins: [jwtPersist],
+    plugins: [jwtPersist, usernamePersist],
     state: {
         books: [],
+        page: 0,
         token: storedToken,
-        loginAttempt: false,
+        loginAttempt: getLoginAttempt(),
         user: getUserName(storedToken)
     },
     actions: {
@@ -54,7 +67,7 @@ const store = new Vuex.Store({
                 .then(
                     response => {
                         if (response.status === 200) {
-                            commit('inProgressOfAuth');
+                            commit('inProgressOfAuth', { username });
                         }
                     },
                     response => {
@@ -80,10 +93,15 @@ const store = new Vuex.Store({
                     }
                 );
         },
-        getBooks({ commit, state }, pair) {
-            Vue.http.get('/api/get-books', generateHeaders(state.token)).then(
+        getBooks({ commit, state }) {
+            Vue.http.get(`/api/get-books?page=${state.page}`, generateHeaders(state.token)).then(
                 response => {
-                    commit('setBooks', response.body);
+                    if (state.page !== 0) {
+                        commit('setBooks', state.books.concat(response.body));
+                    } else {
+                        commit('setBooks', response.body);
+                    }
+                    commit('setPage', state.page + 1);
                 },
                 response => {
                     if (response.status === 401) {
@@ -198,7 +216,7 @@ const store = new Vuex.Store({
     },
     mutations: {
         inProgressOfAuth(state, newState) {
-            state.loginAttempt = true;
+            state.loginAttempt = newState.username;
         },
         setJwtToken(state, newJwt) {
             state.token = newJwt;
@@ -208,6 +226,9 @@ const store = new Vuex.Store({
         },
         setBooks(state, books) {
             state.books = books;
+        },
+        setPage(state, page) {
+            state.page = page;
         }
     }
 });

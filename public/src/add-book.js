@@ -1,18 +1,79 @@
 const template = `
-        <div>
+        <div class="section">
+            <nav class="breadcrumb" aria-label="breadcrumbs">
+              <ul>
+                <li><router-link to="/books">Главная</router-link> </li>
+              </ul>
+            </nav>
             <form @submit="postBook">
-                <div><label for="">Name: <input type="text" v-model="name" /></label></div>
-                <div><label for="">Description: <textarea  v-model="description" /></label></div>
-                <div><label for="">Genre: <select  v-model="genre">
-                    <option value="Разработка">Разработка</option>
-                    <option value="Менеджмент">Менеджмент</option>
-                    <option value="Маркетинг">Маркетинг</option>
-                    <option value="Психология">Психология</option>
-                <select></label></div>
-                <div><label for="">Author: <input type="text" v-model="author" /></label></div>
-                <div><label for="">Link<input type="text" v-model="link" /></label></div>
-                <div><label for="">Image<input type="text" v-model="image" /></label></div>
-                <button>Send</button>
+                <div class="field">
+                  <label class="label">Name</label>
+                  <div class="control">
+                    <input type="text" v-model="name" class="input"/>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Description</label>
+                  <div class="control">
+                    <textarea class="textarea" v-model="description" placeholder="Description"></textarea>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Genre</label>
+                  <div class="control">
+                    <div class="select">
+                      <select  v-model="genre">
+                        <option value="Бизнес">Бизнес</option>
+                        <option value="Разработка">Разработка</option>
+                        <option value="Менеджмент">Менеджмент</option>
+                        <option value="Маркетинг">Маркетинг</option>
+                        <option value="Психология">Психология</option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Author</label>
+                  <div class="control">
+                    <input type="text" v-model="author" class="input"/>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Link</label>
+                  <div class="control">
+                    <input type="text" v-model="link" class="input"/>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <label class="label">Image</label>
+                  <div class="control">
+                    <input type="text" v-model="image" class="input"/>
+                  </div>
+                </div>
+
+                <div class="field">
+                  <div class="control">
+                    <label class="checkbox">
+                      <input type="checkbox" v-model="personal">
+                      Моя личная книга (пока не обрабатывается)
+                    </label>
+                  </div>
+                </div>
+
+                <div class="field is-grouped">
+                  <div class="control">
+                    <button class="button is-link" type="submit">Отправить</button>
+                  </div>
+                  <div class="control">
+                    <button class="button is-text" type="reset">Отмена</button>
+                  </div>
+                </div>
+
             </form>
         </div>
     `;
@@ -20,6 +81,7 @@ const template = `
 const addBook = {
     data() {
         return {
+            personal: '',
             description: '',
             author: '',
             genre: '',

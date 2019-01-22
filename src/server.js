@@ -6,7 +6,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const slackPost = require('./slack-post');
-const { SLACK_BOT_SERVICE, JWT_SECRET } = process.env;
+const { SLACK_BOT_SERVICE, JWT_SECRET, SLACK_ADDRESS, SERVICE_ADDRESS } = process.env;
 const dbUsers = require('./db-users');
 const dbBooks = require('./db-books');
 const logger = require('./logger');
@@ -30,7 +30,7 @@ app.post('/api/generate-code', (req, res) => {
         .generateCodeForLogin(userName)
         .then(generatedCode => {
             slackPost({
-                text: generatedCode,
+                text: `${SERVICE_ADDRESS}/#/books?code=${generatedCode}`,
                 channel: '@' + userName,
                 path: SLACK_BOT_SERVICE
             });
@@ -101,7 +101,7 @@ const jwtValidateMiddleware = (req, res, next) => {
 };
 
 app.get('/api/get-books', jwtValidateMiddleware, (req, res) => {
-    dbBooks.getBooks().then(result => {
+    dbBooks.getBooks(req.query.page || 0).then(result => {
         res.json(result);
     });
 });
@@ -156,12 +156,8 @@ app.post('/api/book-log', jwtValidateMiddleware, (req, res) => {
     }
 });
 
-app.get('/messages/:login', jwtValidateMiddleware, (req, res) => {
-    if (req.body) {
-        res.json({ error: 'in development' })
-    } else {
-        res.json({ error: 'no body' });
-    }
+app.get('/messages/:login', (req, res) => {
+    res.redirect(SLACK_ADDRESS + req.params.login);
 });
 
 app.listen(5000, () => console.log('Server started on port 5000'));

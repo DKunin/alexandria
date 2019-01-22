@@ -9,22 +9,26 @@ const template = `
             <div v-if="book">
                 <h2 class="is-size-4">{{ book.name }}</h2> 
                 <p>{{ book.description }}</p>
+                <p><a :href="book.link" target="_blank">{{ book.link }}</a></p>
             </div>
             <div>
-                <button class="button" v-if="!currentlyInOwnPossession || isBookAvailable" @click="checkout(book.book_id)">Взять книгу</button>
+                <button class="button" v-if="!currentlyInOwnPossession && isBookAvailable" @click="checkout(book.book_id)">Взять книгу</button>
                 <button class="button" v-if="currentlyInOwnPossession && !isBookAvailable" @click="checkin(book.book_id)">Вернуть книгу</button>
+                <p v-if="this.holdPeriodExpired">Период хранения книги истёк, либо взявший уже вернул ее и забыл отметить или забыл вернуть</p>
             </div>
-
-            <h2 v-if="logs.length">История</h2>
-            <table class="table">
-                <tbody>
-                    <tr v-for="log in logs">
-                        <td>{{new Date(log.date).toLocaleDateString()}} {{new Date(log.date).toLocaleTimeString()}}</td>
-                        <td>{{processAction(log.action)}}</td>
-                        <td>{{log.login}}</td>
-                    </tr>
-                </tbody>
-            </table>
+            <hr>
+            <details v-if="logs.length">
+                <summary class="is-size-5">История</summary>
+                <table class="table">
+                    <tbody>
+                        <tr v-for="log in logs">
+                            <td>{{new Date(log.date).toLocaleDateString()}} {{new Date(log.date).toLocaleTimeString()}}</td>
+                            <td>{{processAction(log.action)}}</td>
+                            <td>{{log.login}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </details>
         </div>
     `;
 
@@ -48,8 +52,15 @@ const singleBook = {
         currentlyInOwnPossession() {
             return (this.book ? this.book.login : null) === this.$store.state.user;
         },
+        holdPeriodExpired() {
+            if (!this.book || !this.book.date) return null;
+            // Период хранения превышает 30 дней
+            return ((new Date().getTime() - this.book.date) / 1000 / 60 / 60 / 24) > 30;
+        },
         isBookAvailable() {
-            return (this.book? this.book.action ? this.book.action === 'checkin' : null : null)
+            if (!this.book) return null;
+            if (!this.book.action) return true;
+            return this.holdPeriodExpired || this.book.action === 'checkin' ? true : false;
         }
     },
     template,
