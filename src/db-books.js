@@ -228,6 +228,20 @@ function postBook(book) {
 function editBook(book) {
     return null;
 }
+// Поиск по жанру
+// SELECT b.book_id,
+//                 b.name,
+//                 l.login,
+//                 l.date,
+//                 l.action,
+//                 b.genre,
+//                 b.link,
+//                 b.description,
+//                 l.book_id AS log_id
+// FROM books AS b
+//        LEFT OUTER JOIN logs AS l
+//                     ON log_id = b.book_id
+// where genre like '%Data Science%'  GROUP BY b.name order by l.date desc;
 
 module.exports = {
     getBooks,
