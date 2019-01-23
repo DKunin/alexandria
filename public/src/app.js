@@ -54,6 +54,7 @@ const store = new Vuex.Store({
     state: {
         books: [],
         page: 0,
+        genres: [],
         token: storedToken,
         loginAttempt: getLoginAttempt(),
         user: getUserName(storedToken)
@@ -102,6 +103,18 @@ const store = new Vuex.Store({
                         commit('setBooks', response.body);
                     }
                     commit('setPage', state.page + 1);
+                },
+                response => {
+                    if (response.status === 401) {
+                        commit('resetAuth');
+                    }
+                }
+            );
+        },
+        getGenres({ commit, state }) {
+            Vue.http.get(`/api/genres`, generateHeaders(state.token)).then(
+                response => {
+                    commit('setGenres', response.body);
                 },
                 response => {
                     if (response.status === 401) {
@@ -227,6 +240,9 @@ const store = new Vuex.Store({
         setBooks(state, books) {
             state.books = books;
         },
+        setGenres(state, genres) {
+            state.genres = genres;
+        },
         setPage(state, page) {
             state.page = page;
         }
@@ -235,7 +251,7 @@ const store = new Vuex.Store({
 
 const template = `
     <main>        
-        <authForm></authForm>
+        <authForm v-if="!username"></authForm>
         <router-view v-if="username"/>
     </main>
 `;
@@ -253,6 +269,7 @@ const app = {
     name: 'app',
     mounted() {
         this.$store.dispatch('getBooks');
+        this.$store.dispatch('getGenres');
     }
 };
 

@@ -24,12 +24,10 @@ const template = `
                   <label class="label">Genre</label>
                   <div class="control">
                     <div class="select">
-                      <select  v-model="genre">
-                        <option value="Бизнес">Бизнес</option>
-                        <option value="Разработка">Разработка</option>
-                        <option value="Менеджмент">Менеджмент</option>
-                        <option value="Маркетинг">Маркетинг</option>
-                        <option value="Психология">Психология</option>
+                      <select v-model="genre">
+                        
+                        <option v-for="genre in genres" :value="genre">{{genre}}</option>
+                        
                       </select>
                     </div>
                   </div>
@@ -90,7 +88,11 @@ const addBook = {
             link: ''
         };
     },
-    computed: {},
+    computed: {
+        genres() {
+            return this.$store.state.genres;
+        }
+    },
     template,
     methods: {
         postBook(event) {

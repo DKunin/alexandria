@@ -166,4 +166,11 @@ app.get('/api/genres', (req, res) => {
     });
 });
 
+app.post('/api/find-book-by-genre', (req, res) => {
+    console.log(req.body.genre);
+    dbBooks.getBooksByGenre(req.body.genre).then(result => {
+        res.json(result);
+    });
+});
+
 app.listen(5000, () => console.log('Server started on port 5000'));

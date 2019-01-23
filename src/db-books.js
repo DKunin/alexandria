@@ -134,7 +134,7 @@ function findBook(query) {
                 " where name LIKE '%" +
                 query +
                 "%'" +
-                ' GROUP BY b.book_id;',
+                ' GROUP BY b.name;',
             function(err, rows) {
                 if (err) {
                     logger.error(err);
@@ -186,18 +186,54 @@ function getGenres() {
             }
             const filtered = rows
                 .reduce((newArray, singleGenre) => {
-                    return newArray.concat(singleGenre.genre.split(','))
-                },[])
+                    return newArray.concat(singleGenre.genre.split(','));
+                }, [])
                 .map(singleGenre => singleGenre.trim().toLowerCase())
                 .sort()
                 .reduce((newArray, singleGenre) => {
                     if (newArray[newArray.length - 1] === singleGenre) {
-                        return newArray
+                        return newArray;
                     }
                     return newArray.concat([singleGenre]);
                 }, []);
             resolve(filtered);
         });
+    });
+}
+
+function getBooksByGenre(genre) {
+    ///  Ужасный костыль с sentenceCase - почему то sqllite чувствителен та таки в like, не смотря на то, что везде пишут обратное
+    const sentenceCase = genre.split('').reduce((newString, singleLetter, index) => {
+        if (index === 0) {
+            return newString += singleLetter.toUpperCase();
+        }
+        return newString += singleLetter;
+    },'')
+    return new Promise((resolve, reject) => {
+        db.all(
+            `SELECT b.book_id,
+                b.name,
+                l.login,
+                l.date,
+                l.action,
+                b.genre,
+                b.link,
+                b.description,
+                l.book_id AS log_id
+FROM books AS b
+       LEFT OUTER JOIN logs AS l
+                    ON log_id = b.book_id
+where LOWER(genre) like '%${genre}%' or genre like upper('%${sentenceCase}%') GROUP BY b.name order by l.date desc;`,
+            function(err, rows) {
+                if (err) {
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                console.log(rows);
+                resolve(rows);
+            }
+        );
     });
 }
 
@@ -228,20 +264,6 @@ function postBook(book) {
 function editBook(book) {
     return null;
 }
-// Поиск по жанру
-// SELECT b.book_id,
-//                 b.name,
-//                 l.login,
-//                 l.date,
-//                 l.action,
-//                 b.genre,
-//                 b.link,
-//                 b.description,
-//                 l.book_id AS log_id
-// FROM books AS b
-//        LEFT OUTER JOIN logs AS l
-//                     ON log_id = b.book_id
-// where genre like '%Data Science%'  GROUP BY b.name order by l.date desc;
 
 module.exports = {
     getBooks,
@@ -250,5 +272,6 @@ module.exports = {
     findBook,
     checkoutBook,
     checkinBook,
-    getBookLogs
+    getBookLogs,
+    getBooksByGenre
 };

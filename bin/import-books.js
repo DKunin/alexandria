@@ -4,6 +4,11 @@ const parse = require('csv-parse');
 const fs = require('fs');
 const input = fs.readFileSync('./bin/books.csv').toString();
 var request = require('request');
+
+// const cheerio = require('cheerio');
+
+
+
 parse(
 	input,
 	{
@@ -21,7 +26,16 @@ parse(
 				image: null
 			};
 		});
-		newFormat.filter(singleEntry => Boolean(singleEntry.name)).forEach(singleEntry => {
+		newFormat
+			.filter(singleEntry => Boolean(singleEntry.name))
+			.sort()
+            .reduce((newArray, singleBook) => {
+                if (newArray[newArray.length - 1] && newArray[newArray.length - 1].name === singleBook.name) {
+                    return newArray;
+                }
+                return newArray.concat([singleBook]);
+            }, [])
+			.forEach(singleEntry => {
 			var options = {
 				method: 'POST',
 				url: 'http://localhost:5000/api/post-book',

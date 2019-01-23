@@ -10,6 +10,9 @@ const template = `
                   </div>
                 </div>
             </form>
+            <div class="level">
+                <p class="container"></p>
+            </div>
             <div class="container">
                 <div class="card" v-for="book in books">
                   <div class="card-content">
@@ -77,7 +80,7 @@ const booksView = {
             return [book.author, book.genre].filter(Boolean).join(',');
         },
         handleScroll() {
-            if((window.innerHeight + window.scrollY) >= document.body.offsetHeight) {
+            if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.query) {
                 this.$store.dispatch('getBooks');
             }
         }
