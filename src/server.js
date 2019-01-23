@@ -160,4 +160,10 @@ app.get('/messages/:login', (req, res) => {
     res.redirect(SLACK_ADDRESS + req.params.login);
 });
 
+app.get('/api/genres', (req, res) => {
+    dbBooks.getGenres().then(result => {
+        res.json(result);
+    });
+});
+
 app.listen(5000, () => console.log('Server started on port 5000'));

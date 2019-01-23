@@ -114,16 +114,16 @@ db.run(
 
 function getBooks(page = 0) {
     return new Promise((resolve, reject) => {
-        db.all(booksWithLogsQuery + `GROUP BY b.book_id LIMIT ${page}, 20;`, function(
-            err,
-            rows
-        ) {
-            if (err) {
-                reject(err);
-                return;
+        db.all(
+            booksWithLogsQuery + `GROUP BY b.book_id LIMIT ${page}, 20;`,
+            function(err, rows) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(rows.filter(singleBook => singleBook.name !== ''));
             }
-            resolve(rows.filter(singleBook => singleBook.name !== ''));
-        });
+        );
     });
 }
 
@@ -173,6 +173,34 @@ where b.book_id = ${bookId};`,
     });
 }
 
+function getGenres() {
+    return new Promise((resolve, reject) => {
+        db.all(`select distinct genre from books where genre != '';`, function(
+            err,
+            rows
+        ) {
+            if (err) {
+                logger.error(err);
+                reject(err);
+                return;
+            }
+            const filtered = rows
+                .reduce((newArray, singleGenre) => {
+                    return newArray.concat(singleGenre.genre.split(','))
+                },[])
+                .map(singleGenre => singleGenre.trim().toLowerCase())
+                .sort()
+                .reduce((newArray, singleGenre) => {
+                    if (newArray[newArray.length - 1] === singleGenre) {
+                        return newArray
+                    }
+                    return newArray.concat([singleGenre]);
+                }, []);
+            resolve(filtered);
+        });
+    });
+}
+
 function getBook() {
     return null;
 }
@@ -182,7 +210,9 @@ function postBook(book) {
         db.run(
             `INSERT INTO 
                     books(book_id, name, description, genre, author, link, image)
-                    VALUES(${chance.natural()}, '${book.name}','${book.description}','${book.genre}','${book.author}', '${book.link}','${book.image}'
+                    VALUES(${chance.natural()}, '${book.name}','${
+                book.description
+            }','${book.genre}','${book.author}', '${book.link}','${book.image}'
                 )`,
             function(err) {
                 logger.error(err);
@@ -202,6 +232,7 @@ function editBook(book) {
 module.exports = {
     getBooks,
     postBook,
+    getGenres,
     findBook,
     checkoutBook,
     checkinBook,
