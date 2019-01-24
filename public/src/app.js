@@ -56,6 +56,7 @@ const store = new Vuex.Store({
         page: 0,
         genres: [],
         token: storedToken,
+        totalCount: 0,
         loginAttempt: getLoginAttempt(),
         user: getUserName(storedToken)
     },
@@ -95,21 +96,29 @@ const store = new Vuex.Store({
                 );
         },
         getBooks({ commit, state }) {
-            Vue.http.get(`/api/get-books?page=${state.page}`, generateHeaders(state.token)).then(
-                response => {
-                    if (state.page !== 0) {
-                        commit('setBooks', state.books.concat(response.body));
-                    } else {
-                        commit('setBooks', response.body);
+            Vue.http
+                .get(
+                    `/api/get-books?page=${state.page}`,
+                    generateHeaders(state.token)
+                )
+                .then(
+                    response => {
+                        if (state.page !== 0) {
+                            commit('setBooks', {
+                                books: state.books.concat(response.body.books),
+                                totalCount: response.body.totalCount
+                            });
+                        } else {
+                            commit('setBooks', response.body);
+                        }
+                        commit('setPage', state.page + 1);
+                    },
+                    response => {
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
                     }
-                    commit('setPage', state.page + 1);
-                },
-                response => {
-                    if (response.status === 401) {
-                        commit('resetAuth');
-                    }
-                }
-            );
+                );
         },
         getGenres({ commit, state }) {
             Vue.http.get(`/api/genres`, generateHeaders(state.token)).then(
@@ -142,7 +151,7 @@ const store = new Vuex.Store({
                 .post('/api/find-book', { query }, generateHeaders(state.token))
                 .then(
                     response => {
-                        commit('setBooks', response.body);
+                        commit('setBooks', { books: response.body, totalCount: response.body.length });
                     },
                     response => {
                         if (response.status === 401) {
@@ -238,7 +247,8 @@ const store = new Vuex.Store({
             state.token = null;
         },
         setBooks(state, books) {
-            state.books = books;
+            state.books = books.books;
+            state.totalCount = books.totalCount;
         },
         setGenres(state, genres) {
             state.genres = genres;

@@ -11,7 +11,9 @@ const template = `
                 </div>
             </form>
             <div class="level">
-                <p class="container"></p>
+                <p class="container">
+                    <span v-if="!query">Всего книг: </span><span v-if="query">Найдено книг: </span>{{ totalCount }}
+                </p>
             </div>
             <div class="container">
                 <div class="card" v-for="book in books">
@@ -56,6 +58,9 @@ const booksView = {
     computed: {
         books() {
             return this.$store.state.books;
+        },
+        totalCount() {
+            return this.$store.state.totalCount;
         }
     },
     template,

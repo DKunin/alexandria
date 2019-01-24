@@ -112,16 +112,32 @@ db.run(
     }
 );
 
+function countBooks() {
+    return new Promise((resolve, reject) => {
+        db.all(`select count(name) from books;`, function(err, rows) {
+            if (err) {
+                reject(err);
+                return;
+            }
+            resolve(rows[0]['count(name)']);
+        });
+    });
+}
+
 function getBooks(page = 0) {
     return new Promise((resolve, reject) => {
         db.all(
             booksWithLogsQuery + `GROUP BY b.book_id LIMIT ${page}, 20;`,
-            function(err, rows) {
+            async function(err, rows) {
                 if (err) {
                     reject(err);
                     return;
                 }
-                resolve(rows.filter(singleBook => singleBook.name !== ''));
+                const filtered = rows.filter(
+                    singleBook => singleBook.name !== ''
+                );
+                const count = await countBooks();
+                resolve({ totalCount: count, books: filtered });
             }
         );
     });
@@ -131,9 +147,13 @@ function findBook(query) {
     return new Promise((resolve, reject) => {
         db.all(
             booksWithLogsQuery +
-                " where name LIKE '%" +
+                " where (name LIKE '%" +
                 query +
-                "%'" +
+                "%' or genre LIKE '%" +
+                query +
+                "%' or author LIKE '%" +
+                query +
+                "%') " +
                 ' GROUP BY b.name;',
             function(err, rows) {
                 if (err) {
@@ -203,12 +223,14 @@ function getGenres() {
 
 function getBooksByGenre(genre) {
     ///  Ужасный костыль с sentenceCase - почему то sqllite чувствителен та таки в like, не смотря на то, что везде пишут обратное
-    const sentenceCase = genre.split('').reduce((newString, singleLetter, index) => {
-        if (index === 0) {
-            return newString += singleLetter.toUpperCase();
-        }
-        return newString += singleLetter;
-    },'')
+    const sentenceCase = genre
+        .split('')
+        .reduce((newString, singleLetter, index) => {
+            if (index === 0) {
+                return (newString += singleLetter.toUpperCase());
+            }
+            return (newString += singleLetter);
+        }, '');
     return new Promise((resolve, reject) => {
         db.all(
             `SELECT b.book_id,
