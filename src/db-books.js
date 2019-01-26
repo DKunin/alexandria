@@ -100,6 +100,7 @@ db.run(
         name string NOT NULL,
         description string,
         genre string,
+        location string,
         author string,
         link string, 
         image string
@@ -144,26 +145,30 @@ function getBooks(page = 0) {
 }
 
 function findBook(query) {
+    let theQuery = " where (name LIKE '%" + query.text + "%'";
+    if (query.genre) {
+        theQuery += " or genre LIKE '%" + query.genre + "%'";
+    } else {
+        theQuery += " or genre LIKE '%" + query.text + "%'";
+    }
+
+    if (query.author) {
+        theQuery += " and author LIKE '%" + query.author + "%') ";
+    } else {
+        theQuery += " or author LIKE '%" + query.text + "%') ";
+    }
     return new Promise((resolve, reject) => {
-        db.all(
-            booksWithLogsQuery +
-                " where (name LIKE '%" +
-                query +
-                "%' or genre LIKE '%" +
-                query +
-                "%' or author LIKE '%" +
-                query +
-                "%') " +
-                ' GROUP BY b.name;',
-            function(err, rows) {
-                if (err) {
-                    logger.error(err);
-                    reject(err);
-                    return;
-                }
-                resolve(rows);
+        db.all(booksWithLogsQuery + theQuery + ' GROUP BY b.name;', function(
+            err,
+            rows
+        ) {
+            if (err) {
+                logger.error(err);
+                reject(err);
+                return;
             }
-        );
+            resolve(rows);
+        });
     });
 }
 
@@ -180,7 +185,7 @@ function getBookLogs(bookId) {
 FROM   books AS b
        LEFT OUTER JOIN logs AS l
                     ON log_id = b.book_id
-where b.book_id = ${bookId};`,
+where b.book_id = ${bookId} order by l.date asc;`,
             function(err, rows) {
                 if (err) {
                     logger.error(err);
@@ -259,8 +264,55 @@ where LOWER(genre) like '%${genre}%' or genre like upper('%${sentenceCase}%') GR
     });
 }
 
-function getBook() {
-    return null;
+function countCheckedOutBooks() {
+    return new Promise((resolve, reject) => {
+        db.all(
+            `SELECT b.book_id,
+      l.date,
+      l.action,
+      l.book_id AS log_id
+FROM books AS b
+       LEFT OUTER JOIN logs AS l
+                    ON log_id = b.book_id where l.date is not null group by b.book_id order by l.date desc;`,
+            function(err, rows) {
+                if (err) {
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(rows.filter(singleRow => singleRow.action === 'checkout').length);
+            }
+        );
+    });
+}
+
+
+function getBook(bookId) {
+    return new Promise((resolve, reject) => {
+        db.all(
+            `SELECT b.book_id,
+                b.name,
+                l.login,
+                l.action,
+                b.description,
+                b.genre,
+                b.link,
+                b.author,
+                max(l.date) as date,
+                l.book_id AS log_id
+FROM   books AS b
+       LEFT OUTER JOIN logs AS l
+                    ON log_id = b.book_id where b.book_id = ${bookId};`,
+            function(err, rows) {
+                if (err) {
+                    logger.error(err);
+                    reject(err);
+                    return;
+                }
+                resolve(rows[0]);
+            }
+        );
+    });
 }
 
 function postBook(book) {
@@ -283,6 +335,45 @@ function postBook(book) {
     });
 }
 
+function removeBook(bookId) {
+    return new Promise(async (resolve, reject) => {
+        db.run(
+            `delete from books where book_id = ${bookId}`,
+            function(err) {
+                logger.error(err);
+                if (err) {
+                    return reject(err.message);
+                }
+                resolve({});
+            }
+        );
+    });
+}
+
+function updateBook(book) {
+    const keys = Object.keys(book).filter(singleKey => singleKey != 'book_id');
+    const columsToUpdate =  keys.map(singleKey => {
+        if (book[singleKey]) {
+            return `${singleKey} = "${book[singleKey]}"`;
+        } 
+        return null;
+    }).filter(Boolean).join(', ')
+    return new Promise(async (resolve, reject) => {
+        db.run(
+            `UPDATE books
+                SET ${columsToUpdate}
+                WHERE book_id = ${book.book_id}`,
+            function(err) {
+                logger.error(err);
+                if (err) {
+                    return reject(err.message);
+                }
+                resolve({});
+            }
+        );
+    });
+}
+
 function editBook(book) {
     return null;
 }
@@ -290,10 +381,15 @@ function editBook(book) {
 module.exports = {
     getBooks,
     postBook,
+    getBook,
     getGenres,
     findBook,
     checkoutBook,
     checkinBook,
     getBookLogs,
+    getBookLogs,
+    removeBook,
+    updateBook,
+    countCheckedOutBooks,
     getBooksByGenre
 };

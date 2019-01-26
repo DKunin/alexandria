@@ -166,8 +166,31 @@ app.get('/api/genres', (req, res) => {
     });
 });
 
+app.get('/api/count-checked-out-books', (req, res) => {
+    dbBooks.countCheckedOutBooks().then(result => {
+        res.json(result);
+    });
+});
+
+app.get('/api/get-book/:bookId', jwtValidateMiddleware, (req, res) => {
+    dbBooks.getBook(req.params.bookId).then(result => {
+        res.json(result);
+    });
+});
+
+app.post('/api/remove-book', jwtValidateMiddleware, (req, res) => {
+    dbBooks.removeBook(req.body.bookId).then(result => {
+        res.json(result);
+    });
+});
+
+app.post('/api/update-book', jwtValidateMiddleware, (req, res) => {
+    dbBooks.updateBook(req.body).then(result => {
+        res.json(result);
+    });
+});
+
 app.post('/api/find-book-by-genre', (req, res) => {
-    console.log(req.body.genre);
     dbBooks.getBooksByGenre(req.body.genre).then(result => {
         res.json(result);
     });

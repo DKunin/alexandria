@@ -1,6 +1,11 @@
 const template = `
         <div class="section">
             <form @submit="searchBook" class="container">
+                <div class="select">
+                    <select v-model="genre">
+                        <option v-for="genre in genres" :value="genre">{{genre}}</option>
+                    </select>
+                </div>
                 <div class="field has-addons">
                   <div class="control">
                     <input type="text"  class="input" v-model="query" />
@@ -13,6 +18,7 @@ const template = `
             <div class="level">
                 <p class="container">
                     <span v-if="!query">Всего книг: </span><span v-if="query">Найдено книг: </span>{{ totalCount }}
+                    <span> Книг читают: {{checkedOutBooks}} </span>
                 </p>
             </div>
             <div class="container">
@@ -52,7 +58,8 @@ const template = `
 const booksView = {
     data() {
         return {
-            query: null
+            query: null,
+            genre: null
         }
     },
     computed: {
@@ -61,6 +68,12 @@ const booksView = {
         },
         totalCount() {
             return this.$store.state.totalCount;
+        },
+        checkedOutBooks() {
+            return this.$store.state.checkedOutBooks;
+        },
+        genres() {
+            return this.$store.state.genres;
         }
     },
     template,
@@ -79,7 +92,10 @@ const booksView = {
         },
         searchBook(event) {
             event.preventDefault();
-            this.$store.dispatch('searchBook', this.query);
+            this.$store.dispatch('searchBook', {
+                text: this.query,
+                genre: this.genre
+            });
         },
         ganreAndAuthor(book) {
             return [book.author, book.genre].filter(Boolean).join(',');
