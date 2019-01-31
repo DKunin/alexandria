@@ -25,6 +25,7 @@ SELECT b.book_id,
                 l.action,
                 b.description,
                 b.genre,
+                b.image,
                 b.link,
                 b.author,
                 l.book_id AS log_id
@@ -102,7 +103,8 @@ db.run(
         genre string,
         location string,
         author string,
-        link string, 
+        link string,
+        isbn integer,
         image string
     );`,
     function() {
@@ -296,6 +298,7 @@ function getBook(bookId) {
                 l.action,
                 b.description,
                 b.genre,
+                b.image,
                 b.link,
                 b.author,
                 max(l.date) as date,
@@ -319,11 +322,17 @@ function postBook(book) {
     return new Promise(async (resolve, reject) => {
         db.run(
             `INSERT INTO 
-                    books(book_id, name, description, genre, author, link, image)
-                    VALUES(${chance.natural()}, '${book.name}','${
-                book.description
-            }','${book.genre}','${book.author}', '${book.link}','${book.image}'
-                )`,
+                    books(book_id, name, description, genre, author, link, image, isbn)
+                    VALUES(?,?,?,?,?,?,?,?)`,[
+                        chance.natural(),
+                        book.name,
+                        book.description,
+                        book.genre,
+                        book.author,
+                        book.link,
+                        book.image,
+                        book.isbn
+                    ],
             function(err) {
                 logger.error(err);
                 if (err) {

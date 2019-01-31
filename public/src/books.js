@@ -1,7 +1,7 @@
 const template = `
         <div class="section">
             <form @submit="searchBook" class="container">
-                <div class="select">
+                <div class="select" v-if="false">
                     <select v-model="genre">
                         <option v-for="genre in genres" :value="genre">{{genre}}</option>
                     </select>
@@ -26,6 +26,7 @@ const template = `
                   <div class="card-content">
                     <div class="media">
                       <div class="media-content">
+                        <img :src="book.image" alt="" />
                         <p class="title is-4"><router-link :to="'book/' + book.book_id">{{ book.name }}</router-link></p>
                         <p class="subtitle is-6">{{ ganreAndAuthor(book) }}</p>
                       </div>
@@ -93,8 +94,9 @@ const booksView = {
         searchBook(event) {
             event.preventDefault();
             this.$store.dispatch('searchBook', {
-                text: this.query,
-                genre: this.genre
+                text: this.query
+                // ,
+                // genre: this.genre
             });
         },
         ganreAndAuthor(book) {

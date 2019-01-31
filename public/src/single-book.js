@@ -8,7 +8,12 @@ const template = `
             
             <div v-if="book">
                 <h2 class="is-size-4">{{ book.name }}</h2> 
-                <p>{{ book.description }}</p>
+
+                <img :src="book.image" />
+                <p v-html="book.description"> </p>
+                <br/>
+                <p>{{ book.isbn }}</p>
+                <br/>
                 <p><a :href="book.link" target="_blank">{{ book.link }}</a></p>
             </div>
             <div>
