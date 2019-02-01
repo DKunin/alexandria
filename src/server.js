@@ -21,8 +21,6 @@ app.use( (req, res, done) => {
     done();
 });
 
-var testUser = { login: 'dkunin', code: '1234' };
-
 app.post('/api/generate-code', (req, res) => {
     const userName = req.body.username.toLowerCase();
 

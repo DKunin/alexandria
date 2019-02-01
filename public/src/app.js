@@ -2,11 +2,13 @@
 import books from './books.js';
 import addBook from './add-book.js';
 import singleBook from './single-book.js';
+import camera from './camera.js';
 
 const routes = [
     { path: '/', redirect: '/books' },
     { path: '/books', component: books },
     { path: '/add', component: addBook },
+    { path: '/camera', component: camera },
     { path: '/book/:id', component: singleBook }
 ];
 
