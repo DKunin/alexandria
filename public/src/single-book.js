@@ -123,6 +123,7 @@ const singleBook = {
                 .then(
                     function(response) {
                         this.book = response.body;
+                        console.log(response.body)
                     },
                     function(response) {
                     }

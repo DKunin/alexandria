@@ -26,6 +26,7 @@ SELECT b.book_id,
                 b.description,
                 b.genre,
                 b.image,
+                b.isbn,
                 b.link,
                 b.author,
                 l.book_id AS log_id
@@ -299,13 +300,14 @@ function getBook(bookId) {
                 b.description,
                 b.genre,
                 b.image,
+                b.isbn,
                 b.link,
                 b.author,
                 max(l.date) as date,
                 l.book_id AS log_id
 FROM   books AS b
        LEFT OUTER JOIN logs AS l
-                    ON log_id = b.book_id where b.book_id = ${bookId};`,
+                    ON log_id = b.book_id where b.book_id = ${bookId} or b.isbn = ${bookId};`,
             function(err, rows) {
                 if (err) {
                     logger.error(err);

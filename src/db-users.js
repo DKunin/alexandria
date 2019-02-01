@@ -43,7 +43,7 @@ db.run(
 
 function generateCodeForLogin(user) {
     return new Promise((resolve, reject) => {
-        db.all(`SELECT * FROM users where login = "${user}"`, function(
+        db.all(`SELECT * FROM users where login = "${user.toLowerCase()}"`, function(
             err,
             rows
         ) {
@@ -57,7 +57,7 @@ function generateCodeForLogin(user) {
             }
             const randomNumber = chance.prime({ min: 1000, max: 9999 });
             db.run(
-                `INSERT INTO users(id, login, code) VALUES(${new Date().getTime()}, '${user}','${randomNumber}')`,
+                `INSERT INTO users(id, login, code) VALUES(${new Date().getTime()}, '${user.toLowerCase()}','${randomNumber}')`,
                 function(err) {
                     if (err) {
                         logger.error(err);
@@ -72,16 +72,17 @@ function generateCodeForLogin(user) {
 
 function checkCodeForLogin(pair) {
     return new Promise((resolve, reject) => {
-        db.all(`SELECT * FROM users where login = "${pair.login}";`, function(
+        db.all(`SELECT * FROM users where login = "${pair.login.toLowerCase()}";`, function(
             err,
             rows
         ) {
+                        console.log(pair, err, rows);
             if (err) {
                 reject(err);
                 return;
             }
             resolve(rows);
-            db.run(`DELETE FROM users where login = "${pair.login}";`);
+            db.run(`DELETE FROM users where login = "${pair.login.toLowerCase()}";`);
         });
     });
 }

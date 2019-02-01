@@ -2,13 +2,11 @@
 import books from './books.js';
 import addBook from './add-book.js';
 import singleBook from './single-book.js';
-import camera from './camera.js';
 
 const routes = [
     { path: '/', redirect: '/books' },
     { path: '/books', component: books },
     { path: '/add', component: addBook },
-    { path: '/camera', component: camera },
     { path: '/book/:id', component: singleBook }
 ];
 
@@ -76,7 +74,9 @@ const store = new Vuex.Store({
                         }
                     },
                     response => {
-                        // error callback
+                        if (response.body && response.body.error === 'already exists') {
+                            commit('inProgressOfAuth', { username });
+                        };
                     }
                 );
         },
@@ -94,6 +94,7 @@ const store = new Vuex.Store({
                         }
                     },
                     response => {
+                        this.error(response);
                         // error callback
                     }
                 );
@@ -273,6 +274,9 @@ const store = new Vuex.Store({
         },
         setCheckedOutBooks(state, count) {
             state.checkedOutBooks = count;
+        },
+        resetAttempt(state, count) {
+            state.loginAttempt = null;
         }
     }
 });
@@ -280,7 +284,7 @@ const store = new Vuex.Store({
 const template = `
     <main>        
         <authForm v-if="!username"></authForm>
-        <router-view v-if="username"/>
+        <router-view/>
     </main>
 `;
 

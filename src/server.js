@@ -37,9 +37,10 @@ app.post('/api/generate-code', (req, res) => {
             });
         })
         .catch(error => {
-            logger.error(error)
+            logger.error(error);
+            console.log(error);
             res.status(403).send({
-                error: error.message
+                error
             });
         });
 });
@@ -51,8 +52,9 @@ app.post('/api/validate-code', (req, res) => {
         dbUsers
             .checkCodeForLogin(pair)
             .then(data => {
+                console.log(data);
                 let user = {
-                    login: pair.login
+                    login: pair.login.toLowerCase()
                 };
                 if (!data || !data[0]) {
                     throw new Error(

@@ -13,6 +13,7 @@ const template = `
                   <div class="control">
                     <button class="button is-primary">поиск</button>
                   </div>
+                  <cameraButton></cameraButton>
                 </div>
             </form>
             <div class="level">

@@ -1,21 +1,19 @@
 const template = `
-        <div>
-            {{code}}
-            <input @change="upload" type="file" id="file" capture/>
-        </div>
+            <div class="control">
+                <a class="button is-primary" @click="openFile">
+                    <span class="icon">
+                      <i class="fas fa-camera"></i>
+                    </span>
+                </a>
+                <input @change="upload" type="file" id="file" capture />
+              </div>
     `;
 var Quagga = window.Quagga;
 
 const camera = {
     data() {
         return {
-          code: null
         };
-    },
-    computed: {
-        genres() {
-            return this.$store.state.genres;
-        }
     },
     template,
     methods: {
@@ -38,21 +36,16 @@ const camera = {
             locate: true,
             src
         }, callBack);
-          // Quagga
-          //   .decoder({readers: ['ean_reader']})
-          //   .locator({patchSize: 'medium'})
-          //   .fromImage(src, {size: 800})
-          //   .toPromise()
-          //   .then(function(result) {
-          //       console.log(result.codeResult.code)
-          //   });
+        },
+        openFile () {
+            document.querySelector('input[type="file"]').click();
         },
         upload(event) {
             const self = this;
             event.preventDefault();
             if (event.target.files && event.target.files.length) {
                 this.decode(URL.createObjectURL(event.target.files[0]), function(result) {
-                  self.code = result.codeResult.code;
+                  self.$router.push({ path: `/book/${result.codeResult.code}` })
                 });
             }
         }

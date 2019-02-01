@@ -15,6 +15,9 @@ const template = `
                                 <span v-if="!loginAttempt">Получить ссылку в Slack</span>
                                 <span v-if="loginAttempt">Подтвердить код</span>
                             </button>
+                            <button v-if="loginAttempt" @click="resetAttempt" class="button is-light">
+                                Начать заново
+                            </button>
                           </div>
                         </div>
                         
@@ -52,6 +55,9 @@ const authView = {
                     code: parseInt(this.code)
                 });
             }
+        },
+        resetAttempt() {
+            this.$store.commit('resetAttempt');
         }
     },
     mounted() {
