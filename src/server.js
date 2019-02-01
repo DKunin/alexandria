@@ -62,7 +62,7 @@ app.post('/api/validate-code', (req, res) => {
                     );
                 }
                 if (
-                    data[0].login === pair.login &&
+                    data[0].login.toLowerCase() === pair.login.toLowerCase() &&
                     data[0].code === pair.code
                 ) {
                     var token = jwt.sign(
