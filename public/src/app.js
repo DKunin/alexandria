@@ -284,7 +284,7 @@ const store = new Vuex.Store({
 const template = `
     <main>        
         <authForm v-if="!username"></authForm>
-        <router-view/>
+        <router-view v-if="username"/>
     </main>
 `;
 
