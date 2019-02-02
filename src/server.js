@@ -196,4 +196,10 @@ app.post('/api/find-book-by-genre', (req, res) => {
     });
 });
 
+app.post('/api/my-checked-out-books', (req, res) => {
+    dbBooks.getBooksByHolder(req.body.user).then(result => {
+        res.json(result);
+    });
+});
+
 app.listen(5000, () => console.log('Server started on port 5000'));

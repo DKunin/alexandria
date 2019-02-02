@@ -1,5 +1,6 @@
 // Pages
 import books from './books.js';
+import myBooks from './my-books.js';
 import addBook from './add-book.js';
 import singleBook from './single-book.js';
 
@@ -7,6 +8,7 @@ const routes = [
     { path: '/', redirect: '/books' },
     { path: '/books', component: books },
     { path: '/add', component: addBook },
+    { path: '/my-books', component: myBooks },
     { path: '/book/:id', component: singleBook }
 ];
 
@@ -58,6 +60,7 @@ const store = new Vuex.Store({
         token: storedToken,
         totalCount: 0,
         checkedOutBooks: 0,
+        myCheckedOutBooks: [],
         loginAttempt: getLoginAttempt(),
         user: getUserName(storedToken)
     },
@@ -140,6 +143,18 @@ const store = new Vuex.Store({
             Vue.http.get(`/api/count-checked-out-books`, generateHeaders(state.token)).then(
                 response => {
                     commit('setCheckedOutBooks', response.body);
+                },
+                response => {
+                    if (response.status === 401) {
+                        commit('resetAuth');
+                    }
+                }
+            );
+        },
+        getMyCheckedOutBooks({ commit, state }) {
+            Vue.http.post(`/api/my-checked-out-books`, { user: state.user } ,generateHeaders(state.token)).then(
+                response => {
+                    commit('setMyCheckedOutBooks', response.body);
                 },
                 response => {
                     if (response.status === 401) {
@@ -275,6 +290,9 @@ const store = new Vuex.Store({
         setCheckedOutBooks(state, count) {
             state.checkedOutBooks = count;
         },
+        setMyCheckedOutBooks(state, books) {
+            state.myCheckedOutBooks = books;
+        },
         resetAttempt(state, count) {
             state.loginAttempt = null;
         }
@@ -303,6 +321,7 @@ const app = {
         this.$store.dispatch('getBooks');
         this.$store.dispatch('getGenres');
         this.$store.dispatch('countCheckedOutBooks');
+        this.$store.dispatch('getMyCheckedOutBooks');
     }
 };
 

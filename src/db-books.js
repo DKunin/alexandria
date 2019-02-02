@@ -147,6 +147,26 @@ function getBooks(page = 0) {
     });
 }
 
+
+function getBooksByHolder(user) {
+    return new Promise((resolve, reject) => {
+        db.all(
+            booksWithLogsQuery + `  where login = '${user}' GROUP BY b.book_id;`,
+            async function(err, rows) {
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                const filtered = rows.filter(
+                    singleBook => singleBook.name !== '' && singleBook.action === 'checkout'
+                );
+                console.log(filtered)
+                resolve({ myBooksCount: filtered.length, myBooks: filtered });
+            }
+        );
+    });
+}
+
 function findBook(query) {
     let theQuery = " where (name LIKE '%" + query.text + "%'";
     if (query.genre) {
@@ -402,5 +422,6 @@ module.exports = {
     removeBook,
     updateBook,
     countCheckedOutBooks,
+    getBooksByHolder,
     getBooksByGenre
 };

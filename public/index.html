@@ -13,6 +13,31 @@
         input[type="file"] {
             display: none;
         }
+        .book-description {
+            height: 60px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+        }
+        .book-description.book-description-opened {
+            height: auto;
+            overflow: visible;
+        }
+        .book-desc-holder {
+            box-shadow: inset 0px -14px 5px -4px white;
+            position: relative;
+        }
+        .book-desc-holder button {
+            position: absolute;
+            bottom: -30px;
+            right: 0;
+        }
+        .media-content {
+            display: flex;
+        }
+        .media-content-image {
+            max-width: 200px;
+            padding-right: 20px;
+        }
     </style>
 </head>
 <body>
