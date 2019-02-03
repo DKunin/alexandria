@@ -43,47 +43,49 @@ db.run(
 
 function generateCodeForLogin(user) {
     return new Promise((resolve, reject) => {
-        db.all(`SELECT * FROM users where login = "${user.toLowerCase()}"`, function(
-            err,
-            rows
-        ) {
-            if (err) {
-                reject(err);
-                return;
-            }
-            if (rows && rows.length) {
-                reject('already exists');
-                return;
-            }
-            const randomNumber = chance.prime({ min: 1000, max: 9999 });
-            db.run(
-                `INSERT INTO users(id, login, code) VALUES(${new Date().getTime()}, '${user.toLowerCase()}','${randomNumber}')`,
-                function(err) {
-                    if (err) {
-                        logger.error(err);
-                        return reject(err.message);
-                    }
-                    resolve(randomNumber);
+        db.all(
+            `SELECT * FROM users where login = "${user.toLowerCase()}"`,
+            function(err, rows) {
+                if (err) {
+                    reject(err);
+                    return;
                 }
-            );
-        });
+                if (rows && rows.length) {
+                    reject('already exists');
+                    return;
+                }
+                const randomNumber = chance.prime({ min: 1000, max: 9999 });
+                db.run(
+                    `INSERT INTO users(id, login, code) VALUES(${new Date().getTime()}, '${user.toLowerCase()}','${randomNumber}')`,
+                    function(err) {
+                        if (err) {
+                            logger.error(err);
+                            return reject(err.message);
+                        }
+                        resolve(randomNumber);
+                    }
+                );
+            }
+        );
     });
 }
 
 function checkCodeForLogin(pair) {
     return new Promise((resolve, reject) => {
-        db.all(`SELECT * FROM users where login = "${pair.login.toLowerCase()}";`, function(
-            err,
-            rows
-        ) {
-                        console.log(pair, err, rows);
-            if (err) {
-                reject(err);
-                return;
+        db.all(
+            `SELECT * FROM users where login = "${pair.login.toLowerCase()}";`,
+            function(err, rows) {
+                console.log(pair, err, rows);
+                if (err) {
+                    reject(err);
+                    return;
+                }
+                resolve(rows);
+                db.run(
+                    `DELETE FROM users where login = "${pair.login.toLowerCase()}";`
+                );
             }
-            resolve(rows);
-            db.run(`DELETE FROM users where login = "${pair.login.toLowerCase()}";`);
-        });
+        );
     });
 }
 

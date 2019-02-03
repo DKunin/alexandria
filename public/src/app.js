@@ -77,9 +77,12 @@ const store = new Vuex.Store({
                         }
                     },
                     response => {
-                        if (response.body && response.body.error === 'already exists') {
+                        if (
+                            response.body &&
+                            response.body.error === 'already exists'
+                        ) {
                             commit('inProgressOfAuth', { username });
-                        };
+                        }
                     }
                 );
         },
@@ -140,28 +143,39 @@ const store = new Vuex.Store({
             );
         },
         countCheckedOutBooks({ commit, state }) {
-            Vue.http.get(`/api/count-checked-out-books`, generateHeaders(state.token)).then(
-                response => {
-                    commit('setCheckedOutBooks', response.body);
-                },
-                response => {
-                    if (response.status === 401) {
-                        commit('resetAuth');
+            Vue.http
+                .get(
+                    `/api/count-checked-out-books`,
+                    generateHeaders(state.token)
+                )
+                .then(
+                    response => {
+                        commit('setCheckedOutBooks', response.body);
+                    },
+                    response => {
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
                     }
-                }
-            );
+                );
         },
         getMyCheckedOutBooks({ commit, state }) {
-            Vue.http.post(`/api/my-checked-out-books`, { user: state.user } ,generateHeaders(state.token)).then(
-                response => {
-                    commit('setMyCheckedOutBooks', response.body);
-                },
-                response => {
-                    if (response.status === 401) {
-                        commit('resetAuth');
+            Vue.http
+                .post(
+                    `/api/my-checked-out-books`,
+                    { user: state.user },
+                    generateHeaders(state.token)
+                )
+                .then(
+                    response => {
+                        commit('setMyCheckedOutBooks', response.body);
+                    },
+                    response => {
+                        if (response.status === 401) {
+                            commit('resetAuth');
+                        }
                     }
-                }
-            );
+                );
         },
         postBooks({ dispatch, commit, state }, book) {
             Vue.http
@@ -182,7 +196,10 @@ const store = new Vuex.Store({
                 .post('/api/find-book', { query }, generateHeaders(state.token))
                 .then(
                     response => {
-                        commit('setBooks', { books: response.body, totalCount: response.body.length });
+                        commit('setBooks', {
+                            books: response.body,
+                            totalCount: response.body.length
+                        });
                     },
                     response => {
                         if (response.status === 401) {

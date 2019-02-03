@@ -147,20 +147,22 @@ function getBooks(page = 0) {
     });
 }
 
-
 function getBooksByHolder(user) {
     return new Promise((resolve, reject) => {
         db.all(
-            booksWithLogsQuery + `  where login = '${user}' GROUP BY b.book_id;`,
+            booksWithLogsQuery +
+                `  where login = '${user}' GROUP BY b.book_id;`,
             async function(err, rows) {
                 if (err) {
                     reject(err);
                     return;
                 }
                 const filtered = rows.filter(
-                    singleBook => singleBook.name !== '' && singleBook.action === 'checkout'
+                    singleBook =>
+                        singleBook.name !== '' &&
+                        singleBook.action === 'checkout'
                 );
-                console.log(filtered)
+                console.log(filtered);
                 resolve({ myBooksCount: filtered.length, myBooks: filtered });
             }
         );
@@ -303,12 +305,14 @@ FROM books AS b
                     reject(err);
                     return;
                 }
-                resolve(rows.filter(singleRow => singleRow.action === 'checkout').length);
+                resolve(
+                    rows.filter(singleRow => singleRow.action === 'checkout')
+                        .length
+                );
             }
         );
     });
 }
-
 
 function getBook(bookId) {
     return new Promise((resolve, reject) => {
@@ -345,16 +349,17 @@ function postBook(book) {
         db.run(
             `INSERT INTO 
                     books(book_id, name, description, genre, author, link, image, isbn)
-                    VALUES(?,?,?,?,?,?,?,?)`,[
-                        chance.natural(),
-                        book.name,
-                        book.description,
-                        book.genre,
-                        book.author,
-                        book.link,
-                        book.image,
-                        book.isbn
-                    ],
+                    VALUES(?,?,?,?,?,?,?,?)`,
+            [
+                chance.natural(),
+                book.name,
+                book.description,
+                book.genre,
+                book.author,
+                book.link,
+                book.image,
+                book.isbn
+            ],
             function(err) {
                 logger.error(err);
                 if (err) {
@@ -368,27 +373,27 @@ function postBook(book) {
 
 function removeBook(bookId) {
     return new Promise(async (resolve, reject) => {
-        db.run(
-            `delete from books where book_id = ${bookId}`,
-            function(err) {
-                logger.error(err);
-                if (err) {
-                    return reject(err.message);
-                }
-                resolve({});
+        db.run(`delete from books where book_id = ${bookId}`, function(err) {
+            logger.error(err);
+            if (err) {
+                return reject(err.message);
             }
-        );
+            resolve({});
+        });
     });
 }
 
 function updateBook(book) {
     const keys = Object.keys(book).filter(singleKey => singleKey != 'book_id');
-    const columsToUpdate =  keys.map(singleKey => {
-        if (book[singleKey]) {
-            return `${singleKey} = "${book[singleKey]}"`;
-        } 
-        return null;
-    }).filter(Boolean).join(', ')
+    const columsToUpdate = keys
+        .map(singleKey => {
+            if (book[singleKey]) {
+                return `${singleKey} = "${book[singleKey]}"`;
+            }
+            return null;
+        })
+        .filter(Boolean)
+        .join(', ');
     return new Promise(async (resolve, reject) => {
         db.run(
             `UPDATE books

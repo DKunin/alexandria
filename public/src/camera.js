@@ -12,41 +12,50 @@ var Quagga = window.Quagga;
 
 const camera = {
     data() {
-        return {
-        };
+        return {};
     },
     template,
     methods: {
         decode(src, callBack) {
-          Quagga.decodeSingle({
-            inputStream: {
-                size: 800,
-                singleChannel: false
-            },
-            locator: {
-                patchSize: "medium",
-                halfSample: true
-            },
-            decoder: {
-                readers: [{
-                    format: "ean_reader",
-                    config: {}
-                }]
-            },
-            locate: true,
-            src
-        }, callBack);
+            Quagga.decodeSingle(
+                {
+                    inputStream: {
+                        size: 800,
+                        singleChannel: false
+                    },
+                    locator: {
+                        patchSize: 'medium',
+                        halfSample: true
+                    },
+                    decoder: {
+                        readers: [
+                            {
+                                format: 'ean_reader',
+                                config: {}
+                            }
+                        ]
+                    },
+                    locate: true,
+                    src
+                },
+                callBack
+            );
         },
-        openFile () {
+        openFile() {
             document.querySelector('input[type="file"]').click();
         },
         upload(event) {
             const self = this;
             event.preventDefault();
             if (event.target.files && event.target.files.length) {
-                this.decode(URL.createObjectURL(event.target.files[0]), function(result) {
-                  self.$router.push({ path: `/book/${result.codeResult.code}` })
-                });
+                this.decode(
+                    URL.createObjectURL(event.target.files[0]),
+                    function(result) {
+                        self.$router.push({
+                            path: `/book/${result.codeResult.code}`
+                        });
+                    }
+                );
             }
         }
     },

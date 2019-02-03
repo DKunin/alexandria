@@ -1,3 +1,4 @@
 books.csv
 node_modules
 db/*
+logs/*

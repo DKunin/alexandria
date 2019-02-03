@@ -12,7 +12,7 @@ const template = `
 
 const descriptionCutter = {
     props: {
-        description: String,
+        description: String
     },
     data() {
         return {
@@ -28,7 +28,10 @@ const descriptionCutter = {
     methods: {
         generateClass() {
             if (!this.textAmount) return null;
-            return 'book-description ' + (this.opened ? 'book-description-opened' : '');
+            return (
+                'book-description ' +
+                (this.opened ? 'book-description-opened' : '')
+            );
         },
         toggleMore() {
             this.opened = !this.opened;

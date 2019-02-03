@@ -40,7 +40,7 @@ const authView = {
             return this.$store.state.loginAttempt;
         },
         username() {
-            return this.$store.state.user
+            return this.$store.state.user;
         }
     },
     template,
@@ -61,7 +61,7 @@ const authView = {
         }
     },
     mounted() {
-        if(this.$route.query.code) {
+        if (this.$route.query.code) {
             this.$store.dispatch('validateCode', {
                 login: this.loginAttempt,
                 code: parseInt(this.$route.query.code)

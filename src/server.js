@@ -6,7 +6,12 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const slackPost = require('./slack-post');
-const { SLACK_BOT_SERVICE, JWT_SECRET, SLACK_ADDRESS, SERVICE_ADDRESS } = process.env;
+const {
+    SLACK_BOT_SERVICE,
+    JWT_SECRET,
+    SLACK_ADDRESS,
+    SERVICE_ADDRESS
+} = process.env;
 const dbUsers = require('./db-users');
 const dbBooks = require('./db-books');
 const logger = require('./logger');
@@ -16,7 +21,7 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(express.static('public'));
 
-app.use( (req, res, done) => {
+app.use((req, res, done) => {
     logger.info(req.originalUrl);
     done();
 });

@@ -43,21 +43,29 @@ const singleBook = {
             book: {},
             query: null,
             logs: []
-        }
+        };
     },
     computed: {
         currentlyInOwnPossession() {
-            return (this.book ? this.book.login : null) === this.$store.state.user && this.book.action === 'checkout';
+            return (
+                (this.book ? this.book.login : null) ===
+                    this.$store.state.user && this.book.action === 'checkout'
+            );
         },
         holdPeriodExpired() {
             if (!this.book || !this.book.date) return null;
             // Период хранения превышает 30 дней
-            return ((new Date().getTime() - this.book.date) / 1000 / 60 / 60 / 24) > 30;
+            return (
+                (new Date().getTime() - this.book.date) / 1000 / 60 / 60 / 24 >
+                30
+            );
         },
         isBookAvailable() {
             if (!this.book) return null;
             if (!this.book.action) return true;
-            return this.holdPeriodExpired || this.book.action === 'checkin' ? true : false;
+            return this.holdPeriodExpired || this.book.action === 'checkin'
+                ? true
+                : false;
         }
     },
     template,
@@ -74,9 +82,9 @@ const singleBook = {
         },
         processAction(action) {
             if (action === 'checkin') {
-                return 'вернул'
+                return 'вернул';
             } else {
-                return 'взял'
+                return 'взял';
             }
         },
         getBookLogs() {
@@ -92,28 +100,25 @@ const singleBook = {
                 )
                 .then(
                     function(response) {
-                        this.logs = response.body.filter(singleEntry => singleEntry.action);
+                        this.logs = response.body.filter(
+                            singleEntry => singleEntry.action
+                        );
                     },
-                    function(response) {
-                    }
+                    function(response) {}
                 );
         },
         getBook() {
             this.$http
-                .get(
-                    `/api/get-book/${this.$route.params.id}`,
-                    {
-                        headers: {
-                            Authorization: `Bearer ${this.$store.state.token}`
-                        }
+                .get(`/api/get-book/${this.$route.params.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${this.$store.state.token}`
                     }
-                )
+                })
                 .then(
                     function(response) {
                         this.book = response.body;
                     },
-                    function(response) {
-                    }
+                    function(response) {}
                 );
         }
     },

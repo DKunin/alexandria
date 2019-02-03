@@ -53,7 +53,7 @@ const booksView = {
     data() {
         return {
             query: null
-        }
+        };
     },
     computed: {
         books() {
@@ -61,9 +61,11 @@ const booksView = {
                 return this.$store.state.myCheckedOutBooks.myBooks;
             }
 
-            return this.$store.state.myCheckedOutBooks.myBooks.filter(singleBook => {
-                return singleBook.name.includes(this.query);
-            })
+            return this.$store.state.myCheckedOutBooks.myBooks.filter(
+                singleBook => {
+                    return singleBook.name.includes(this.query);
+                }
+            );
         }
     },
     template,
@@ -82,7 +84,7 @@ const booksView = {
             return [book.author, book.genre].filter(Boolean).join(',');
         },
         checkin(bookid) {
-            if (window.confirm('Вы точно вернули книгу на место?')) { 
+            if (window.confirm('Вы точно вернули книгу на место?')) {
                 this.$store.dispatch('checkinBook', bookid);
                 setTimeout(() => {
                     this.$store.dispatch('getMyCheckedOutBooks');
@@ -96,7 +98,8 @@ const booksView = {
                 // ,
                 // genre: this.genre
             });
-        },
-    }};
+        }
+    }
+};
 
 export default booksView;

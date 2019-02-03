@@ -1,4 +1,3 @@
-
 const template = `
         <div class="section">
             <form @submit="searchBook" class="container">
@@ -73,7 +72,7 @@ const booksView = {
         return {
             query: null,
             genre: null
-        }
+        };
     },
     computed: {
         books() {
@@ -121,30 +120,41 @@ const booksView = {
             return [book.author, book.genre].filter(Boolean).join(',');
         },
         handleScroll() {
-            if((window.innerHeight + window.scrollY) >= document.body.offsetHeight && !this.query) {
+            if (
+                window.innerHeight + window.scrollY >=
+                    document.body.offsetHeight &&
+                !this.query
+            ) {
                 this.$store.dispatch('getBooks');
             }
         },
         currentlyInOwnPossession(book) {
-            return (book ? book.login : null) === this.$store.state.user && book.action === 'checkout';
+            return (
+                (book ? book.login : null) === this.$store.state.user &&
+                book.action === 'checkout'
+            );
         },
         holdPeriodExpired(book) {
             if (!book || !book.date) return null;
             // Период хранения превышает 30 дней
-            return ((new Date().getTime() - book.date) / 1000 / 60 / 60 / 24) > 30;
+            return (
+                (new Date().getTime() - book.date) / 1000 / 60 / 60 / 24 > 30
+            );
         },
         isBookAvailable(book) {
             if (!book) return null;
             if (!book.action) return true;
-            return this.holdPeriodExpired(book) || book.action === 'checkin' ? true : false;
+            return this.holdPeriodExpired(book) || book.action === 'checkin'
+                ? true
+                : false;
         }
     },
     mounted() {
-        window.addEventListener('scroll', this.handleScroll)
+        window.addEventListener('scroll', this.handleScroll);
     },
     beforeDestroy() {
-        window.removeEventListener('scroll', this.handleScroll)
-  }
+        window.removeEventListener('scroll', this.handleScroll);
+    }
 };
 
 export default booksView;
