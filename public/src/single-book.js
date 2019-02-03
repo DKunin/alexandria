@@ -46,18 +46,6 @@ const singleBook = {
         }
     },
     computed: {
-        // book() {
-        //     const stateBooks = this.$store.state.books;
-        //     if (!this.$store.state.books) {
-        //         return null;
-        //     }
-        //     const book_id = parseInt(this.$route.params.id);
-        //     const currentBook = this.$store.state.books.find(singleBook => singleBook.book_id === book_id);
-        //     if (!currentBook) {
-
-        //     }
-        //     return currentBook;
-        // },
         currentlyInOwnPossession() {
             return (this.book ? this.book.login : null) === this.$store.state.user && this.book.action === 'checkout';
         },
@@ -123,7 +111,6 @@ const singleBook = {
                 .then(
                     function(response) {
                         this.book = response.body;
-                        console.log(response.body)
                     },
                     function(response) {
                     }
