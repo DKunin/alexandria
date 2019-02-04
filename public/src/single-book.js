@@ -5,12 +5,21 @@ const template = `
                 <li><router-link to="/books">Главная</router-link> </li>
               </ul>
             </nav>
-            
+            <div v-if="loading">
+                Загрузка
+            </div>
+            <div v-if="!book.isbn && !book.book_id && !loading">
+                К сожалению книгу по таким позывным найти не удалось
+                <br/>
+                <button class="button" @click="searchByIsbn">Искать по isbn</button>
+            </div>
             <div v-if="book">
                 <h2 class="is-size-4">{{ book.name }}</h2> 
 
                 <img :src="book.image" />
                 <p v-html="book.description"> </p>
+                <br/>
+                <p>{{ book.author }}</p>
                 <br/>
                 <p>{{ book.isbn }}</p>
                 <br/>
@@ -19,6 +28,7 @@ const template = `
             <div>
                 <button class="button" v-if="!currentlyInOwnPossession && isBookAvailable" @click="checkout(book.book_id)">Взять книгу</button>
                 <button class="button" v-if="currentlyInOwnPossession && !isBookAvailable" @click="checkin(book.book_id)">Вернуть книгу</button>
+                <button class="button" v-if="canPostBook" @click="postBook(book)">Добавить книгу в библиотеку</button>
                 <p v-if="this.holdPeriodExpired">Период хранения книги истёк, либо взявший уже вернул ее и забыл отметить или забыл вернуть</p>
             </div>
             <hr>
@@ -42,11 +52,14 @@ const singleBook = {
         return {
             book: {},
             query: null,
+            loading: false,
+            canPostBook: false,
             logs: []
         };
     },
     computed: {
         currentlyInOwnPossession() {
+            if (!this.book) return null;
             return (
                 (this.book ? this.book.login : null) ===
                     this.$store.state.user && this.book.action === 'checkout'
@@ -88,6 +101,7 @@ const singleBook = {
             }
         },
         getBookLogs() {
+            this.loading = true;
             this.$http
                 .post(
                     '/api/book-log',
@@ -103,11 +117,13 @@ const singleBook = {
                         this.logs = response.body.filter(
                             singleEntry => singleEntry.action
                         );
+                        this.loading = false;
                     },
                     function(response) {}
                 );
         },
         getBook() {
+            this.loading = true;
             this.$http
                 .get(`/api/get-book/${this.$route.params.id}`, {
                     headers: {
@@ -117,9 +133,41 @@ const singleBook = {
                 .then(
                     function(response) {
                         this.book = response.body;
+                        this.loading = false;
                     },
                     function(response) {}
                 );
+        },
+        searchByIsbn() {
+            this.loading = true;
+            this.$http
+                .get(`/api/get-book-by-isbn?isbn=${this.$route.params.id}`, {
+                    headers: {
+                        Authorization: `Bearer ${this.$store.state.token}`
+                    }
+                })
+                .then(
+                    function(response) {
+                        this.book = response.body;
+                        this.loading = false;
+                        if (this.book.name) {
+                            this.canPostBook = true;
+                        }
+                    },
+                    function(response) {}
+                );
+        },
+        postBook() {
+            this.$store.dispatch('postBooks', {
+                name: this.book.name,
+                description: this.book.description,
+                author: this.book.author,
+                genre: this.book.genre,
+                link: this.book.link,
+                isbn: this.book.isbn,
+                image: this.book.image
+            });
+            this.canPostBook = true;
         }
     },
     mounted() {

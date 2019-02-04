@@ -1,4 +1,5 @@
 const template = `
+        <div>
             <div class="control">
                 <a class="button is-primary" @click="openFile">
                     <span class="icon">
@@ -6,7 +7,14 @@ const template = `
                     </span>
                 </a>
                 <input @change="upload" type="file" id="file" capture />
-              </div>
+            </div>
+
+            <a class="floating-camera button is-primary" @click="openFile">
+                <span class="icon">
+                  <i class="fas fa-camera"></i>
+                </span>
+            </a>
+        </div>
     `;
 var Quagga = window.Quagga;
 

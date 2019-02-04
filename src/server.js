@@ -15,6 +15,7 @@ const {
 const dbUsers = require('./db-users');
 const dbBooks = require('./db-books');
 const logger = require('./logger');
+const fetchBookByIsbn = require('./fetch-book-by-isbn');
 
 const app = express();
 app.use(cors());
@@ -203,6 +204,12 @@ app.post('/api/find-book-by-genre', (req, res) => {
 
 app.post('/api/my-checked-out-books', (req, res) => {
     dbBooks.getBooksByHolder(req.body.user).then(result => {
+        res.json(result);
+    });
+});
+
+app.get('/api/get-book-by-isbn', (req, res) => {
+    fetchBookByIsbn(req.query.isbn).then(result => {
         res.json(result);
     });
 });

@@ -1,12 +1,15 @@
 const template = `
         <div class="book-desc-holder">
-            <p
+
+            <p v-if="opened"
                 v-html="description" :class="generateClass()">
             </p>
-            <button class="button" @click="toggleMore" v-if="textAmount">
-                <span v-if="!opened">Подробнее</span>
-                <span v-if="opened">Скрыть</span>
-            </button>
+            <div class="button-holder">
+                <button class="button" @click="toggleMore" v-if="textAmount">
+                    <span v-if="!opened">Подробнее</span>
+                    <span v-if="opened">Скрыть</span>
+                </button>
+            </div>
         </div>
     `;
 

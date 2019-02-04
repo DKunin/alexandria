@@ -33,7 +33,7 @@ const template = `
                         </div>
                         <div>
                             <p class="title is-4"><router-link :to="'book/' + book.book_id">{{ book.name }}</router-link></p>
-                            <p class="subtitle is-6">{{ ganreAndAuthor(book) }}</p>
+                            <p class="subtitle">{{ ganreAndAuthor(book) }}</p>
                         </div>
                       </div>
                     </div>

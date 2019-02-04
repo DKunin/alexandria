@@ -6,42 +6,37 @@ const input = fs.readFileSync('./bin/books.csv').toString();
 var request = require('request');
 var parseString = require('xml2js').parseString;
 const async = require('async');
-// var xml = "<root>Hello xml2js!</root>"
-// parseString(xml, function (err, result) {
-//     console.dir(result);
-// });
-
-// const cheerio = require('cheerio');
 const { GOODREADS_KEY } = process.env;
-const testTitle = 'Геймификация в бизнесе';
 
 function getBook(title) {
 	return new Promise((resolve, reject) => {
-		var options = { method: 'GET',
-		  url: 'https://www.goodreads.com/search/index.xml',
-		  qs: 
-		   { key: GOODREADS_KEY,
-		     q: title }};
+		var options = {
+			method: 'GET',
+			url: 'https://www.goodreads.com/search/index.xml',
+			qs: { key: GOODREADS_KEY, q: title }
+		};
 
-		request(options, function (error, response, body) {
-		  if (error) {
-		  	resolve(error);
-		  	return;
-		  }
-			parseString(body, function (err, result) {
+		request(options, function(error, response, body) {
+			if (error) {
+				resolve(error);
+				return;
+			}
+			parseString(body, function(err, result) {
 				if (err) {
 					resolve(error);
 					return;
 				}
 				try {
-				    const bestBook = result.GoodreadsResponse.search[0].results[0].work[0].best_book[0];
-				    const bookData = {
-				    	id: bestBook.id[0]['_'],
-				    	title: bestBook.title[0],
-				    	image: bestBook.image_url[0]
-				    } 
-				    resolve(bookData);
-				} catch(err) {
+					const bestBook =
+						result.GoodreadsResponse.search[0].results[0].work[0]
+							.best_book[0];
+					const bookData = {
+						id: bestBook.id[0]['_'],
+						title: bestBook.title[0],
+						image: bestBook.image_url[0]
+					};
+					resolve(bookData);
+				} catch (err) {
 					resolve({ id: null, title: null, image: null });
 				}
 			});
@@ -49,20 +44,20 @@ function getBook(title) {
 	});
 }
 
-
 function getBookInfo(id) {
 	return new Promise((resolve, reject) => {
+		var options = {
+			method: 'GET',
+			url: `https://www.goodreads.com/book/show/${id}.xml`,
+			qs: { key: GOODREADS_KEY },
+			headers: {}
+		};
 
-	var options = { method: 'GET',
-	  url: `https://www.goodreads.com/book/show/${id}.xml`,
-	  qs: { key: GOODREADS_KEY },
-	  headers: { }};
-
-		request(options, function (error, response, body) {
-		  if (error) {
-		  	resolve({});
-		  }
-			parseString(body, function (err, result) {
+		request(options, function(error, response, body) {
+			if (error) {
+				resolve({});
+			}
+			parseString(body, function(err, result) {
 				if (err) {
 					resolve({});
 					return;
@@ -70,19 +65,23 @@ function getBookInfo(id) {
 
 				try {
 					const bestBook = result.GoodreadsResponse.book[0];
-				    const bookData = {
-				    	isbn: bestBook.isbn[0] || bestBook.isbn13[0],
-				    	description: bestBook.description[0],
-				    	image: bestBook.image_url[0]
-				    } 
-				    resolve(bookData);
-				} catch(err) {
+					const authors = bestBook.authors[0].author
+						.map(({ name }) => name)
+						.join(',');
+					const bookData = {
+						isbn: bestBook.isbn13[0],
+						link: bestBook.link[0],
+						author: authors,
+						description: bestBook.description[0],
+						image: bestBook.image_url[0]
+					};
+					resolve(bookData);
+				} catch (err) {
 					resolve({});
 				}
 			});
 		});
-	})
-
+	});
 }
 
 function postBook(book, callback) {
@@ -101,15 +100,14 @@ function postBook(book, callback) {
 				'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjp7ImxvZ2luIjoiZGt1bmluIn0sImV4cCI6MTU0ODE5MDU4NiwiaWF0IjoxNTQ4MTg2OTg2fQ.5cnKs0D4ebA_6pVZ5l3tb1WTshhwvWSWta05bpnzXO4',
 			Origin: 'http://localhost:5000'
 		},
-		body:
-			JSON.stringify(book)
+		body: JSON.stringify(book)
 	};
 
 	request(options, function(error, response, body) {
 		if (error) {
-			console.error(error)
-		};
-		callback()
+			console.error(error);
+		}
+		callback();
 	});
 }
 
@@ -120,7 +118,8 @@ var q = async.queue(function(singleEntry, callback) {
 			return;
 		}
 		getBookInfo(initialBook.id).then(moreDetails => {
-			const detailedObject = Object.assign({},
+			const detailedObject = Object.assign(
+				{},
 				singleEntry,
 				initialBook,
 				moreDetails
@@ -133,10 +132,8 @@ var q = async.queue(function(singleEntry, callback) {
 
 // assign a callback
 q.drain = function() {
-    console.log('all items have been processed');
+	console.log('all items have been processed');
 };
-
-
 
 parse(
 	input,
@@ -145,34 +142,38 @@ parse(
 		skip_empty_lines: true
 	},
 	function(err, output) {
-		const newFormat = output.filter(singleEntry => Boolean(singleEntry['Название'])).map(singleEntry => {
-			return {
-				name: singleEntry['Название'],
-				description: '',
-				author: singleEntry['Автор'],
-				genre: singleEntry['Жанр'],
-				link: singleEntry['Ссылка'],
-				image: null,
-				isbn: null
-			};
-		});
+		const newFormat = output
+			.filter(singleEntry => Boolean(singleEntry['Название']))
+			.map(singleEntry => {
+				return {
+					name: singleEntry['Название'],
+					description: '',
+					author: singleEntry['Автор'],
+					genre: singleEntry['Жанр'],
+					link: singleEntry['Ссылка'],
+					image: null,
+					isbn: null
+				};
+			});
 		newFormat
 			.filter(singleEntry => Boolean(singleEntry.name))
 			.sort()
-            .reduce((newArray, singleBook) => {
-                if (newArray[newArray.length - 1] && newArray[newArray.length - 1].name === singleBook.name) {
-                    return newArray;
-                }
-                return newArray.concat([singleBook]);
-            }, [])
+			.reduce((newArray, singleBook) => {
+				if (
+					newArray[newArray.length - 1] &&
+					newArray[newArray.length - 1].name === singleBook.name
+				) {
+					return newArray;
+				}
+				return newArray.concat([singleBook]);
+			}, [])
 			.forEach(async singleEntry => {
-	            q.push(singleEntry, function(err) {
-	                if (err) {
-	                    console.error(err);
-	                }
-	                console.log(`finished: ${singleEntry.name}`);
-	            });
-				
-		});
+				q.push(singleEntry, function(err) {
+					if (err) {
+						console.error(err);
+					}
+					console.log(`finished: ${singleEntry.name}`);
+				});
+			});
 	}
 );
