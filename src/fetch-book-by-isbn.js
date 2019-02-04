@@ -90,7 +90,8 @@ module.exports = function(isbn) {
 	return new Promise(resolve => {
 		getBook(isbn).then(initialBook => {
 			if (!initialBook) {
-				resolve({})
+				resolve({});
+				return;
 			}
 			if (!initialBook.id) {
 				resolve(initialBook);
