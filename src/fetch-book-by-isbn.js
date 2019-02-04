@@ -4,6 +4,7 @@ const fs = require('fs');
 var request = require('request');
 var parseString = require('xml2js').parseString;
 const async = require('async');
+const logger = require('./logger');
 
 const { GOODREADS_KEY } = process.env;
 
@@ -32,11 +33,11 @@ function getBook(title) {
 					const bookData = {
 						id: bestBook.id[0]['_'],
 						title: bestBook.title[0],
-						isbn: title,
 						image: bestBook.image_url[0]
 					};
 					resolve(bookData);
 				} catch (err) {
+					logger.error(err);
 					resolve({ id: null, title: null, image: null });
 				}
 			});
@@ -68,7 +69,6 @@ function getBookInfo(id) {
 					const authors = bestBook.authors[0].author
 						.map(({ name }) => name)
 						.join(',');
-					console.log(authors);
 					const bookData = {
 						name: bestBook.title[0],
 						description: bestBook.description[0],
@@ -88,23 +88,24 @@ function getBookInfo(id) {
 
 module.exports = function(isbn) {
 	return new Promise(resolve => {
-		getBook(isbn).then(initialBook => {
-			if (!initialBook) {
-				resolve({});
-				return;
-			}
-			if (!initialBook.id) {
-				resolve(initialBook);
-				return;
-			}
-			getBookInfo(initialBook.id).then(moreDetails => {
-				const detailedObject = Object.assign(
-					{},
-					initialBook,
-					moreDetails
-				);
-				resolve(detailedObject);
-			});
+		getBook(isbn)
+			.then(initialBook => {
+				if (!initialBook) {
+					resolve({});
+					return;
+				}
+				if (!initialBook.id) {
+					resolve(initialBook);
+					return;
+				}
+				getBookInfo(initialBook.id).then(moreDetails => {
+					const detailedObject = Object.assign(
+						{},
+						initialBook,
+						moreDetails
+					);
+					resolve(detailedObject);
+				});
 		});
 	});
 };
