@@ -65,15 +65,17 @@ function getBookInfo(id) {
 
 				try {
 					const bestBook = result.GoodreadsResponse.book[0];
-					const authors = bestBook.authors[0].author.map(({ name }) => name).join(',');
-					console.log(authors)
+					const authors = bestBook.authors[0].author
+						.map(({ name }) => name)
+						.join(',');
+					console.log(authors);
 					const bookData = {
 						name: bestBook.title[0],
 						description: bestBook.description[0],
 						image: bestBook.image_url[0],
 						link: bestBook.link[0],
 						author: authors,
-						isbn: bestBook.isbn13[0],
+						isbn: bestBook.isbn13[0]
 					};
 					resolve(bookData);
 				} catch (err) {
@@ -87,6 +89,9 @@ function getBookInfo(id) {
 module.exports = function(isbn) {
 	return new Promise(resolve => {
 		getBook(isbn).then(initialBook => {
+			if (!initialBook) {
+				resolve({})
+			}
 			if (!initialBook.id) {
 				resolve(initialBook);
 				return;
