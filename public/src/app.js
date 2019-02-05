@@ -246,7 +246,9 @@ const store = new Vuex.Store({
                 )
                 .then(
                     response => {
-                        dispatch('getBooks');
+                        dispatch('getSingleBookAndIntegrate', book_id);
+                        dispatch('getMyCheckedOutBooks');
+                        dispatch('countCheckedOutBooks');
                     },
                     response => {
                         if (response.status === 401) {
@@ -274,13 +276,33 @@ const store = new Vuex.Store({
                 )
                 .then(
                     response => {
-                        dispatch('getBooks');
+                        dispatch('getSingleBookAndIntegrate', book_id);
+                        dispatch('getMyCheckedOutBooks');
+                        dispatch('countCheckedOutBooks');
                     },
                     response => {
                         if (response.status === 401) {
                             commit('resetAuth');
                         }
                     }
+                );
+        },
+        getSingleBookAndIntegrate({ commit, state, dispatch }, book_id) {
+            Vue.http
+                .get(`/api/get-book/${book_id}`, generateHeaders(state.token))
+                .then(
+                    function(response) {
+                        commit('setBooks', {
+                            books: state.books.map(singleBook => {
+                                if (singleBook.book_id !== book_id) {
+                                    return singleBook;
+                                }
+                                return Object.assign({}, singleBook, response.body);
+                            }),
+                            totalCount: state.totalCount
+                        });
+                    },
+                    function(response) {}
                 );
         }
     },
