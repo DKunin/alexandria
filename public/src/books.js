@@ -1,63 +1,48 @@
 const template = `
-        <div class="section">
-            <form @submit="searchBook" class="container">
-                <div class="select" v-if="false">
-                    <select v-model="genre">
-                        <option v-for="genre in genres" :value="genre">{{genre}}</option>
-                    </select>
+        <div>
+            <header>
+                <div class="logo-holder">
+                    <img src="./img/logo.svg" alt="" />
                 </div>
-                <div class="field has-addons">
-                  <div class="control">
-                    <input type="text"  class="input" v-model="query" />
-                  </div>
-                  <div class="control">
-                    <button class="button is-primary">поиск</button>
-                  </div>
-                  <cameraButton></cameraButton>
+                <form class="search-form" @submit="searchBook">
+                    <input class="search-input" type="text" v-model="query" placeholder="Автор, название книги или тема"/>
+                    <button>найти</button>
+                    <cameraButton v-if="false"></cameraButton>
+                </form>
+                <div class="avatar-holder">
+                    <div class="avatar"></div>
+                    {{ user }}
                 </div>
-            </form>
-            <div class="level">
-                <p class="container">
-                    <span v-if="!query">Всего книг: </span><span v-if="query">Найдено книг: </span>{{ totalCount }}
-                    <span> Книг читают: {{checkedOutBooks}} </span>
-                    <span v-if="myCheckedOutBooks.myBooksCount"> <router-link to="/my-books">Книг у меня: {{myCheckedOutBooks.myBooksCount}}</router-link></span>
-                </p>
+                <div class="exit-link">
+                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g fill-rule="nonzero" fill="none"><path d="M11 7h5.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H11v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v6zm0 0H5.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H11V7z" fill="#C2C2C2"/><path stroke="#C2C2C2" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" d="M14 11l3-3-3-3"/></g></svg>
+                </div>
+            </header>
+            <h1>
+                Все книги на полке <span class="gray-text">{{ totalCount }}</span>
+            </h1>
+            <div class="genres-list">
+                Все
             </div>
-            <div class="container">
-                <div class="card" v-for="book in books">
-                  <div class="card-content">
-                    <div class="media">
-                      <div class="media-content">
-                        <div class="media-content-image">
-                            <img :src="book.image" alt="" />
-                        </div>
-                        <div>
-                            <p class="title is-4"><router-link :to="'book/' + book.book_id">{{ book.name }}</router-link></p>
-                            <p class="subtitle">{{ ganreAndAuthor(book) }}</p>
-                        </div>
-                      </div>
+            <div class="book-list">
+                <div class="book" v-for="book in books">
+                    <div class="book-image-holder">
+                        <img class="book-image" :src="book.image" alt="" />
+                    </div>
+                    <div class="book-info">
+                        <h5 class="book-name">{{ book.name }}</h5>
+                        <h5 class="book-author">{{ book.author }}</h5>
+                        <description-cutter :description="book.description"></description-cutter>
+
+                        <div class="book-genre">{{ book.genre }}</div>
+
+                        <div v-if="book.action === 'checkout'">взял <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
+                        <div v-if="false && book.action === 'checkin'">последний брал <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
+                        <div v-if="!book.action">еще никто не брал</div>
+
+                        <button v-if="!currentlyInOwnPossession(book) && isBookAvailable(book)" @click="checkout(book.book_id)">Взять почитать</button>
+                        <button v-if="currentlyInOwnPossession(book) && !isBookAvailable(book)" @click="checkin(book.book_id)">Вернуть</button>
                     </div>
 
-                    <div class="content">
-                      <description-cutter :description="book.description"></description-cutter>
-                    </div>
-                    
-                  </div>
-                    <footer class="card-footer">
-                        <p class="card-footer-item">
-                          <span>
-                            <div v-if="book.action === 'checkout'">сейчас у <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
-                            <div v-if="book.action === 'checkin'">последний брал <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
-                            <div v-if="!book.action">еще никто не брал</div>
-                          </span>
-                        </p>
-                        <p class="card-footer-item">
-                          <span>
-                            <a v-if="!currentlyInOwnPossession(book) && isBookAvailable(book)" @click="checkout(book.book_id)">Взять книгу</a>
-                            <a v-if="currentlyInOwnPossession(book) && !isBookAvailable(book)" @click="checkin(book.book_id)">Вернуть книгу</a>
-                          </span>
-                        </p>
-                      </footer>
                 </div>
 
                 <div v-if="books.length === 0">
@@ -75,6 +60,9 @@ const booksView = {
         };
     },
     computed: {
+        user() {
+            return this.$store.state.user;
+        },
         books() {
             return this.$store.state.books;
         },

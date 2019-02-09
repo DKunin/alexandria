@@ -1,6 +1,6 @@
 const template = `
-        <div class="section">
-            <nav class="breadcrumb" aria-label="breadcrumbs">
+        <div>
+            <nav>
               <ul>
                 <li><router-link to="/books">Главная</router-link> </li>
               </ul>

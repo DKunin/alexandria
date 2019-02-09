@@ -1,0 +1,121 @@
+/* Global */
+:root {
+  --main-bg-color: #cccccc; 
+}
+
+
+@font-face {
+  font-family: Lato;
+  src: url(../fonts/latoto/latoto-regular.woff);
+}
+
+@font-face {
+  font-family: LatoBold;
+  src: url(../fonts/latoto/latoto-bold.woff);
+}
+
+body, html {
+	font-family: Lato, Helvetica, Arial;
+}
+
+main {
+	max-width: 1125px;
+	margin: 0 auto;
+}
+
+.gray-text {
+	color: var(--main-bg-color);
+}
+
+a {
+	text-decoration: none;
+}
+
+h5 {
+	margin: 0;
+	font-size: 1.6em;
+	font-weight: normal;
+	line-height: 1.3em;
+}
+/*Header*/
+
+header {
+	display: flex;
+	padding: 38px 0;
+	justify-content: space-between;
+}
+
+.logo-holder {
+	padding: 8px 0;
+}
+
+.search-form {
+	padding: 1px;
+}
+.search-input {
+	min-width: 600px;
+	border: 1px solid var(--main-bg-color);
+	border-radius: 2px;
+	padding: 10px 12px;
+	margin-right: -5px;
+}
+.avatar-holder {
+	display: flex;
+	align-items: center;
+	justify-content: space-around;
+	margin-top: -2px;
+	min-width: 169px;
+}
+.avatar {
+	width: 44px;
+	height: 44px;
+	background-color: var(--main-bg-color);
+	border-radius: 50%;
+	margin: 0 10px;
+}
+.exit-link {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	cursor: pointer;
+}
+/* Button */
+button {
+	border: 1px solid var(--main-bg-color);
+	border-radius: 2px;
+	padding: 10px 34px;
+
+}
+
+.genres-list {
+	padding: 21px 0;
+	font-size: 1.3em;
+	padding-bottom: 58px;
+}
+
+
+.book {
+	display: flex;
+	padding-bottom: 55px;
+}
+
+.book-image {
+	width: 145px;
+	min-height: 205px;
+}
+
+.book-info {
+	padding: 0 25px;
+}
+
+.book-description-holder {
+	max-width: 750px;
+	font-size: 1.3em;
+	line-height: 1.4em;
+	padding: 10px 0px 18px 0;
+}
+.book-genre {
+	font-size: 1.3em;
+	color: var(--main-bg-color);
+	padding-bottom: 18px;
+}

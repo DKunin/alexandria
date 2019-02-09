@@ -1,0 +1,5 @@
+<div>
+    <span v-if="!query">Всего книг: </span><span v-if="query">Найдено книг: </span>{{ totalCount }}
+    <span> Книг читают: {{checkedOutBooks}} </span>
+    <span v-if="myCheckedOutBooks.myBooksCount"> <router-link to="/my-books">Книг у меня: {{myCheckedOutBooks.myBooksCount}}</router-link></span>
+</div>
