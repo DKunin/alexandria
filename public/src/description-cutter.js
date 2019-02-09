@@ -1,7 +1,7 @@
 const template = `
         <div class="book-description-holder">
-            <div v-html="description"></div>
-            <a href="" @click="toggleMore" v-if="textAmount">
+            <div v-html="changedDescription"></div>
+            <a class="toggle-more" href="" @click="toggleMore" v-if="textAmount">
                 <span v-if="!opened">Ещё</span>
                 <span v-if="opened">скрыть</span>
             </a>
@@ -20,6 +20,11 @@ const descriptionCutter = {
     computed: {
         textAmount() {
             return this.description.length > 150;
+        },
+        changedDescription() {
+            if (!this.description) return null;
+            if (this.opened) return this.description;
+            return this.description.slice(0, 300) + '...';
         }
     },
     template,
@@ -31,7 +36,8 @@ const descriptionCutter = {
                 (this.opened ? 'book-description-opened' : '')
             );
         },
-        toggleMore() {
+        toggleMore(event) {
+            event.preventDefault();
             this.opened = !this.opened;
         }
     },

@@ -312,6 +312,13 @@ const store = new Vuex.Store({
         },
         setJwtToken(state, newJwt) {
             state.token = newJwt;
+            document.body.style.overflow = 'visible';
+        },
+        logout(state) {
+            state.token = null;
+            state.loginAttempt = null;
+            localStorage.clear();
+            window.location.reload();
         },
         resetAuth(state, newJwt) {
             state.token = null;
@@ -341,7 +348,14 @@ const store = new Vuex.Store({
 const template = `
     <main>        
         <authForm v-if="!username"></authForm>
-        <router-view v-if="username"/>
+        <router-view/>
+        <hr />
+        <div>
+            <h3>Не нашел нужную книгу?</h3>
+            <p>Может быть она есть в <a href="miflib.ru">электронной библиотеке</a>? Там 600+ книг, и она постоянно пополняется. Если и там нет, то можно заказать интересующую вас, и после прочтения оставить на полке.</p>
+        </div>
+        <hr />
+        <footer>2019 Avito Bookshelf</footer>
     </main>
 `;
 

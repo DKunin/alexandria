@@ -106,7 +106,7 @@ const jwtValidateMiddleware = (req, res, next) => {
     }
 };
 
-app.get('/api/get-books', jwtValidateMiddleware, (req, res) => {
+app.get('/api/get-books', (req, res) => {
     dbBooks.getBooks(req.query.page || 0).then(result => {
         res.json(result);
     });

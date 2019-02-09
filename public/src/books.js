@@ -9,12 +9,12 @@ const template = `
                     <button>найти</button>
                     <cameraButton v-if="false"></cameraButton>
                 </form>
-                <div class="avatar-holder">
-                    <div class="avatar"></div>
+                <div class="avatar-holder" v-if="user">
+                    <div class="avatar" ></div>
                     {{ user }}
-                </div>
-                <div class="exit-link">
-                    <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g fill-rule="nonzero" fill="none"><path d="M11 7h5.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H11v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v6zm0 0H5.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H11V7z" fill="#C2C2C2"/><path stroke="#C2C2C2" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" d="M14 11l3-3-3-3"/></g></svg>
+                    <div class="exit-link" @click="logout" v-if="user">
+                        <svg width="18" height="18" xmlns="http://www.w3.org/2000/svg"><g fill-rule="nonzero" fill="none"><path d="M11 7h5.5a.5.5 0 0 1 .5.5v1a.5.5 0 0 1-.5.5H11v8a1 1 0 0 1-1 1H1a1 1 0 0 1-1-1V1a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v6zm0 0H5.5a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5H11V7z" fill="#C2C2C2"/><path stroke="#C2C2C2" stroke-width="1.25" stroke-linecap="round" stroke-linejoin="round" d="M14 11l3-3-3-3"/></g></svg>
+                    </div>
                 </div>
             </header>
             <h1>
@@ -37,7 +37,7 @@ const template = `
 
                         <div v-if="book.action === 'checkout'">взял <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
                         <div v-if="false && book.action === 'checkin'">последний брал <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
-                        <div v-if="!book.action">еще никто не брал</div>
+                        <div v-if="false">еще никто не брал</div>
 
                         <button v-if="!currentlyInOwnPossession(book) && isBookAvailable(book)" @click="checkout(book.book_id)">Взять почитать</button>
                         <button v-if="currentlyInOwnPossession(book) && !isBookAvailable(book)" @click="checkin(book.book_id)">Вернуть</button>
@@ -117,6 +117,9 @@ const booksView = {
             }
         },
         currentlyInOwnPossession(book) {
+            if (!this.$store.state.user) {
+                return null
+            }
             return (
                 (book ? book.login : null) === this.$store.state.user &&
                 book.action === 'checkout'
@@ -130,11 +133,17 @@ const booksView = {
             );
         },
         isBookAvailable(book) {
+            if (!this.$store.state.user) {
+                return null
+            }
             if (!book) return null;
             if (!book.action) return true;
             return this.holdPeriodExpired(book) || book.action === 'checkin'
                 ? true
                 : false;
+        },
+        logout() {
+            this.$store.commit('logout');
         }
     },
     mounted() {
