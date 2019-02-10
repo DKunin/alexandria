@@ -3,7 +3,7 @@ const template = `
             <div v-html="changedDescription"></div>
             <a class="toggle-more" href="" @click="toggleMore" v-if="textAmount">
                 <span v-if="!opened">Ещё</span>
-                <span v-if="opened">скрыть</span>
+                <span v-if="opened">Cкрыть</span>
             </a>
         </div>
     `;

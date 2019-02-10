@@ -35,7 +35,10 @@ const template = `
 
                         <div class="book-genre">{{ book.genre }}</div>
 
-                        <div v-if="book.action === 'checkout'">взял <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
+                        <div class="book-taken" v-if="book.action === 'checkout'">
+                            <div class="red-text">Нет на полке</div>
+                            <div>Взял <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a>, {{ new Date(book.date).toLocaleDateString() }}</div>
+                        </div>
                         <div v-if="false && book.action === 'checkin'">последний брал <a target="_blank" :href="'messages/' + book.login">@{{ book.login }}</a></div>
                         <div v-if="false">еще никто не брал</div>
 

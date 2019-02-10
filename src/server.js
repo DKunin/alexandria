@@ -124,9 +124,16 @@ app.post('/api/post-book', jwtValidateMiddleware, (req, res) => {
 
 app.post('/api/find-book', jwtValidateMiddleware, (req, res) => {
     if (req.body) {
-        dbBooks.findBook(req.body.query).then(result => {
-            res.json(result);
-        });
+        if (/^\d+$/.test(req.body.query.text)) {
+            dbBooks.getBook(req.body.query.text).then(result => {
+                res.json([result]);
+            });
+        } else {
+            dbBooks.findBook(req.body.query).then(result => {
+                res.json(result);
+            });
+        }
+
     } else {
         res.json({ error: 'no body' });
     }

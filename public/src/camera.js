@@ -59,9 +59,7 @@ const camera = {
                 this.decode(
                     URL.createObjectURL(event.target.files[0]),
                     function(result) {
-                        self.$router.push({
-                            path: `/book/${result.codeResult.code}`
-                        });
+                        this.$store.commit('setQuery', result.codeResult.code);
                     }
                 );
             }
