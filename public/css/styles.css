@@ -124,10 +124,11 @@ header {
 	display: flex;
 	width: 100%;
 	padding: 0 25px;
+	position: relative;
 }
 
 .search-input {
-	margin-right: -5px;
+	margin-right: -23px;
 	width: 100%;
 }
 .avatar-holder {
@@ -156,6 +157,8 @@ button {
 	border-radius: 2px;
 	padding: 10px 34px;
 	background-color: white;
+	/* outline: 0; */
+	/* background: 0; */
 }
 
 .genres-list {
@@ -213,6 +216,17 @@ hr {
 	margin: 30px 0;
 }
 
+.camera-button button {
+	border: 0;
+	padding: 0;
+	position: relative;
+	top: 14px;
+	right: 17px;
+}
+.camera-button input {
+	display: none;
+}
+
 @media (max-width: 767px) { 
     .logo-holder {
         display: none;
@@ -250,5 +264,9 @@ hr {
 
     .avatar-holder {
     	margin-top: 10px;
+    }
+
+    .camera-button button {
+    	top: 9px;
     }
 }
