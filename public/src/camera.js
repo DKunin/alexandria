@@ -9,6 +9,9 @@ const template = `
 var Quagga = window.Quagga;
 
 const camera = {
+	props: {
+    	processCode: Function
+    },
     data() {
         return {};
     },
@@ -43,13 +46,12 @@ const camera = {
             document.querySelector('input[type="file"]').click();
         },
         upload(event) {
-            const self = this;
             event.preventDefault();
             if (event.target.files && event.target.files.length) {
                 this.decode(
                     URL.createObjectURL(event.target.files[0]),
-                    function(result) {
-                        this.$store.commit('setQuery', result.codeResult.code);
+                    (result) => {
+                        this.processCode(result.codeResult.code);
                     }
                 );
             }

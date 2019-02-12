@@ -126,7 +126,8 @@ app.post('/api/find-book', jwtValidateMiddleware, (req, res) => {
     if (req.body) {
         if (/^\d+$/.test(req.body.query.text)) {
             dbBooks.getBook(req.body.query.text).then(result => {
-                res.json([result]);
+                console.log([result].filter(({ book_id }) => book_id !== null));
+                res.json([result].filter(({ book_id }) => book_id !== null));
             });
         } else {
             dbBooks.findBook(req.body.query).then(result => {

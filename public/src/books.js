@@ -6,7 +6,7 @@ const template = `
                 </div>
                 <form class="search-form" @submit="searchBook">
                     <input class="search-input" type="text" v-model="query" placeholder="Автор, название книги или тема"/>
-                    <cameraButton></cameraButton>
+                    <cameraButton :processCode="processCode"></cameraButton>
                     <button>найти</button>
                 </form>
                 <div class="avatar-holder" v-if="user">
@@ -44,12 +44,17 @@ const template = `
 
                         <button v-if="!currentlyInOwnPossession(book) && isBookAvailable(book)" @click="checkout(book.book_id)">Взять почитать</button>
                         <button v-if="currentlyInOwnPossession(book) && !isBookAvailable(book)" @click="checkin(book.book_id)">Вернуть</button>
+                        <button v-if="book.book_id === null && book.name" @click="postBook(book)">Добавить в библиотеку</button>
                     </div>
 
                 </div>
 
                 <div v-if="books.length === 0">
                     Нет результатов
+                </div>
+
+                <div v-if="searchingByIsbnAndNoResults">
+                    <button @click="fetchByIsbn">Поиск по ISBN</button>
                 </div>
             </div>
         </div>
@@ -80,6 +85,9 @@ const booksView = {
         },
         genres() {
             return this.$store.state.genres;
+        },
+        searchingByIsbnAndNoResults() {
+            return /^\d+$/.test(this.query) && this.$store.state.books.length === 0;
         }
     },
     template,
@@ -147,6 +155,26 @@ const booksView = {
         },
         logout() {
             this.$store.commit('logout');
+        },
+        processCode(code) {
+            this.query = parseInt(code);
+            this.$store.dispatch('searchBook', {
+                text: parseInt(code)
+            });
+        },
+        fetchByIsbn() {
+            this.$store.dispatch('getBookByIsbn', this.query);
+        },
+        postBook(book) {
+            this.$store.dispatch('postBooks', {
+                name: book.name,
+                description: book.description,
+                author: book.author,
+                genre: book.genre,
+                link: book.link,
+                isbn: book.isbn,
+                image: book.image
+            });
         }
     },
     mounted() {

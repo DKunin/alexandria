@@ -304,6 +304,20 @@ const store = new Vuex.Store({
                     },
                     function(response) {}
                 );
+        },
+        getBookByIsbn({ commit, state, dispatch }, isbn) {
+            Vue.http
+                .get(`/api/get-book-by-isbn?isbn=${isbn}`, generateHeaders(state.token))
+                .then(
+                    function(response) {
+                        console.log(response);
+                        commit('setBooks', {
+                            books: [response.body],
+                            totalCount: state.totalCount
+                        });
+                    },
+                    function(response) {}
+                );
         }
     },
     mutations: {
@@ -324,6 +338,7 @@ const store = new Vuex.Store({
             state.token = null;
         },
         setBooks(state, books) {
+            console.log(books)
             state.books = books.books;
             state.totalCount = books.totalCount;
         },

@@ -33,7 +33,8 @@ function getBook(title) {
 					const bookData = {
 						id: bestBook.id[0]['_'],
 						title: bestBook.title[0],
-						image: bestBook.image_url[0]
+						image: bestBook.image_url[0],
+						description: null,
 					};
 					resolve(bookData);
 				} catch (err) {
@@ -75,7 +76,9 @@ function getBookInfo(id) {
 						image: bestBook.image_url[0],
 						link: bestBook.link[0],
 						author: authors,
-						isbn: bestBook.isbn13[0]
+						isbn: bestBook.isbn13[0],
+						action: null,
+						book_id: null
 					};
 					resolve(bookData);
 				} catch (err) {
