@@ -162,28 +162,58 @@ function getBooksByHolder(user) {
                         singleBook.name !== '' &&
                         singleBook.action === 'checkout'
                 );
-                console.log(filtered);
                 resolve({ myBooksCount: filtered.length, myBooks: filtered });
             }
         );
     });
 }
 
-function findBook(query) {
-    let theQuery = " where (name LIKE '%" + query.text + "%'";
-    if (query.genre) {
-        theQuery += " or genre LIKE '%" + query.genre + "%'";
-    } else {
-        theQuery += " or genre LIKE '%" + query.text + "%'";
-    }
+// function findBook(query) {
+//     let theQuery = " where (name LIKE '%" + query.text.trim().toLowerCase() + "%'";
+//     if (query.genre) {
+//         theQuery += " or genre LIKE '%" + query.genre + "%'";
+//     } else {
+//         theQuery += " or genre LIKE '%" + query.text.trim().toLowerCase() + "%'";
+//     }
 
-    if (query.author) {
-        theQuery += " and author LIKE '%" + query.author + "%') ";
-    } else {
-        theQuery += " or author LIKE '%" + query.text + "%') ";
-    }
-    return new Promise((resolve, reject) => {
-        db.all(booksWithLogsQuery + theQuery + ' GROUP BY b.name;', function(
+//     if (query.author) {
+//         theQuery += " and author LIKE '%" + query.author + "%') ";
+//     } else {
+//         theQuery += " or author LIKE '%" + query.text.trim().toLowerCase() + "%') ";
+//     }
+//     return new Promise(async (resolve, reject) => {
+//         const count = await countBooks();
+//         db.all(booksWithLogsQuery + theQuery + 'COLLATE NOCASE GROUP BY b.name;', function(
+//             err,
+//             rows
+//         ) {
+//             if (err) {
+//                 logger.error(err);
+//                 reject(err);
+//                 return;
+//             }
+//             resolve({ totalCount: count, books: rows });
+//         });
+//     });
+// }
+
+
+function findBook(query) {
+    let theQuery = " where name LIKE ?";
+    // if (query.genre) {
+    //     theQuery += " or genre LIKE '%" + query.genre + "%'";
+    // } else {
+    //     theQuery += " or genre LIKE '%" + query.text.trim().toLowerCase() + "%'";
+    // }
+
+    // if (query.author) {
+    //     theQuery += " and author LIKE '%" + query.author + "%') ";
+    // } else {
+    //     theQuery += " or author LIKE '%" + query.text.trim().toLowerCase() + "%') ";
+    // }
+    return new Promise(async (resolve, reject) => {
+        const count = await countBooks();
+        db.all(booksWithLogsQuery + theQuery + ' GROUP BY b.name;', [`%${query.text}%`],function(
             err,
             rows
         ) {
@@ -192,7 +222,7 @@ function findBook(query) {
                 reject(err);
                 return;
             }
-            resolve(rows);
+            resolve({ totalCount: count, books: rows });
         });
     });
 }
@@ -282,7 +312,6 @@ where LOWER(genre) like '%${genre}%' or genre like upper('%${sentenceCase}%') GR
                     reject(err);
                     return;
                 }
-                console.log(rows);
                 resolve(rows);
             }
         );

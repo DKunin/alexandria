@@ -32,7 +32,14 @@ let db = new sqlite3.Database(
 );
 
 db.run(
-    'CREATE TABLE IF NOT EXISTS users (id string PRIMARY KEY, login string NOT NULL, code string NOT NULL);',
+    `CREATE TABLE IF NOT EXISTS users (
+    id string PRIMARY KEY,
+    login string NOT NULL,
+    fullName string,
+    displayName string,
+    avatar string,
+    code string NOT NULL
+    );`,
     function() {
         logger.info(arguments);
     },
@@ -44,19 +51,21 @@ db.run(
 function generateCodeForLogin(user) {
     return new Promise((resolve, reject) => {
         db.all(
-            `SELECT * FROM users where login = "${user.toLowerCase()}"`,
+            `SELECT * FROM users where login = "${user}"`,
             function(err, rows) {
                 if (err) {
                     reject(err);
                     return;
                 }
                 if (rows && rows.length) {
-                    reject('already exists');
+                    resolve(rows[0].code);
                     return;
                 }
                 const randomNumber = chance.prime({ min: 1000, max: 9999 });
                 db.run(
-                    `INSERT INTO users(id, login, code) VALUES(${new Date().getTime()}, '${user.toLowerCase()}','${randomNumber}')`,
+                    `INSERT INTO users(
+                        id, login, code, fullName,displayName, avatar
+                    ) VALUES(${new Date().getTime()}, '${user.login}','${randomNumber}', '${user.fullName}', '${user.displayName}', '${user.avatar}' )`,
                     function(err) {
                         if (err) {
                             logger.error(err);
@@ -72,8 +81,9 @@ function generateCodeForLogin(user) {
 
 function checkCodeForLogin(pair) {
     return new Promise((resolve, reject) => {
+        console.log('pair', pair)
         db.all(
-            `SELECT * FROM users where login = "${pair.login.toLowerCase()}";`,
+            `SELECT * FROM users where login = "${pair.login}";`,
             function(err, rows) {
                 console.log(pair, err, rows);
                 if (err) {
@@ -82,7 +92,7 @@ function checkCodeForLogin(pair) {
                 }
                 resolve(rows);
                 db.run(
-                    `DELETE FROM users where login = "${pair.login.toLowerCase()}";`
+                    `DELETE FROM users where login = "${pair.login}";`
                 );
             }
         );

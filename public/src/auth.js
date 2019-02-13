@@ -1,6 +1,5 @@
 const template = `
         <div class="dialog-holder" v-if="opened">
-            <div class="dialog-bg" ></div>
             <dialog :open="opened" class="auth-dialog">
                 <h2>Вход в библиотеку</h2>
                 <form @submit="processCode" v-if="!username">
@@ -24,6 +23,7 @@ const template = `
                 </p>
                 <div @click="closeAuth" class="close-button">⨯</div>
             </dialog>
+            <div class="dialog-bg" ></div>
         </div>
     `;
 

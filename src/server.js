@@ -6,6 +6,7 @@ const bodyParser = require('body-parser');
 const jwt = require('jsonwebtoken');
 const express = require('express');
 const slackPost = require('./slack-post');
+const slackGetUser = require('./slack-get-user');
 const {
     SLACK_BOT_SERVICE,
     JWT_SECRET,
@@ -28,27 +29,42 @@ app.use((req, res, done) => {
 });
 
 app.post('/api/generate-code', (req, res) => {
-    const userName = req.body.username.toLowerCase();
+    const userName = req.body.username;
 
-    dbUsers
-        .generateCodeForLogin(userName)
-        .then(generatedCode => {
-            slackPost({
-                text: `${SERVICE_ADDRESS}/#/books?code=${generatedCode}`,
-                channel: '@' + userName,
-                path: SLACK_BOT_SERVICE
-            });
-            res.status(200).send({
-                success: true
-            });
+    slackGetUser(userName)
+        .then(result => {
+            const user = {
+                login: userName,
+                fullName: result.profile.real_name,
+                displayName: result.profile.display_name,
+                avatar: result.profile.image_original
+            }
+            return user;
+        }).then(userObject => {
+            dbUsers
+                .generateCodeForLogin(userObject)
+                .then(generatedCode => {
+                    slackPost({
+                        text: `${SERVICE_ADDRESS}/#/books?code=${generatedCode}`,
+                        channel: '@' + userObject.displayName,
+                        path: SLACK_BOT_SERVICE
+                    });
+
+                    res.status(200).send({
+                        success: true
+                    });
+                })
+                .catch(error => {
+                    logger.error(error);
+                    console.log(error);
+                    res.status(403).send({
+                        error
+                    });
+                });
+
         })
-        .catch(error => {
-            logger.error(error);
-            console.log(error);
-            res.status(403).send({
-                error
-            });
-        });
+
+
 });
 
 app.post('/api/validate-code', (req, res) => {
@@ -58,9 +74,8 @@ app.post('/api/validate-code', (req, res) => {
         dbUsers
             .checkCodeForLogin(pair)
             .then(data => {
-                console.log(data);
                 let user = {
-                    login: pair.login.toLowerCase()
+                    login: pair
                 };
                 if (!data || !data[0]) {
                     throw new Error(
@@ -68,11 +83,17 @@ app.post('/api/validate-code', (req, res) => {
                     );
                 }
                 if (
-                    data[0].login.toLowerCase() === pair.login.toLowerCase() &&
+                    data[0].login === pair.login &&
                     data[0].code === pair.code
                 ) {
+                    console.log('data', data);
                     var token = jwt.sign(
-                        { user, exp: Math.floor(Date.now() / 1000) + 60 * 60 },
+                        { user: {
+                            login: data[0].login,
+                            fullName: data[0].fullName,
+                            displayName: data[0].displayName,
+                            avatar: data[0].avatar
+                        }, exp: Math.floor(Date.now() / 1000) + 60 * 60 },
                         JWT_SECRET
                     );
                     res.status(200).send({
@@ -126,11 +147,11 @@ app.post('/api/find-book', jwtValidateMiddleware, (req, res) => {
     if (req.body) {
         if (/^\d+$/.test(req.body.query.text)) {
             dbBooks.getBook(req.body.query.text).then(result => {
-                console.log([result].filter(({ book_id }) => book_id !== null));
                 res.json([result].filter(({ book_id }) => book_id !== null));
             });
         } else {
             dbBooks.findBook(req.body.query).then(result => {
+                console.log(result);
                 res.json(result);
             });
         }
@@ -211,7 +232,7 @@ app.post('/api/find-book-by-genre', (req, res) => {
 });
 
 app.post('/api/my-checked-out-books', (req, res) => {
-    dbBooks.getBooksByHolder(req.body.user).then(result => {
+    dbBooks.getBooksByHolder(req.body.user.displayName).then(result => {
         res.json(result);
     });
 });

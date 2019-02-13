@@ -64,9 +64,7 @@ dialog {
 	z-index: 2;
 }
 
-dialog.auth-dialog {
-
-}
+dialog.auth-dialog {z-index: 3;position: relative;}
 dialog.auth-dialog button {
 	margin-left: -3px;
 }
@@ -146,6 +144,11 @@ header {
 	background-color: var(--main-bg-color);
 	border-radius: 50%;
 	margin: 0 10px;
+	overflow: hidden;
+}
+
+.avatar-image {
+	width: 100%;
 }
 .exit-link {
 	display: flex;
@@ -218,6 +221,10 @@ hr {
 	margin: 30px 0;
 }
 
+.camera-button {
+	display: none;
+}
+
 .camera-button button {
 	border: 0;
 	padding: 0;
@@ -225,14 +232,24 @@ hr {
 	top: 14px;
 	right: 17px;
 }
+
 .camera-button input {
 	display: none;
 }
 
+.my-books {
+	display: flex;
+	flex-direction: row;
+	max-width: 100%;
+	overflow-x: scroll;
+}
+
+.book-name {
+    min-width: 300px;
+}
+
+
 @media (max-width: 767px) { 
-    .logo-holder {
-        display: none;
-    }
 
     body {
     	font-size: 14px;
@@ -250,6 +267,7 @@ hr {
     	justify-content: space-between;
     	min-height: 35px;
     	padding: 8px 0;
+    	flex-direction: column;
     }
     main {
     	padding: 0 20px;
@@ -267,7 +285,9 @@ hr {
     .avatar-holder {
     	margin-top: 10px;
     }
-
+	.camera-button {
+		display: block;
+	}
     .camera-button button {
     	top: 9px;
     }

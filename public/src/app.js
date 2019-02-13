@@ -32,7 +32,7 @@ const usernamePersist = store => {
 
 const getUserName = token => {
     if (token) {
-        return JSON.parse(window.atob(token.split('.')[1])).user.login;
+        return JSON.parse(window.atob(token.split('.')[1])).user;
     }
     return null;
 };
@@ -197,8 +197,8 @@ const store = new Vuex.Store({
                 .then(
                     response => {
                         commit('setBooks', {
-                            books: response.body,
-                            totalCount: response.body.length
+                            books: response.body.books,
+                            totalCount: response.body.totalCount
                         });
                     },
                     response => {
@@ -230,7 +230,7 @@ const store = new Vuex.Store({
         checkoutBook({ commit, state, dispatch }, book_id) {
             let login;
             if (state.token) {
-                login = getUserName(state.token);
+                login = getUserName(state.token).login;
             }
             if (!login) {
                 return null;
@@ -260,7 +260,7 @@ const store = new Vuex.Store({
         checkinBook({ commit, state, dispatch }, book_id) {
             let login;
             if (state.token) {
-                login = getUserName(state.token);
+                login = getUserName(state.token).login;
             }
             if (!login) {
                 return null;
