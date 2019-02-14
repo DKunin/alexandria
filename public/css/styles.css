@@ -248,6 +248,13 @@ hr {
     min-width: 300px;
 }
 
+.hidden-checkbox {
+	display: none;
+}
+
+label[for="helpshown"] {
+	cursor: pointer;
+}
 
 @media (max-width: 767px) { 
 

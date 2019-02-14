@@ -3,7 +3,6 @@ const template = `
             <header-component></header-component>
 
             <div class="book-list">
-  
                 <single-book-component :book="book" v-for="book in books" :myCollection="true" />
 
                 <div v-if="books.length === 0">

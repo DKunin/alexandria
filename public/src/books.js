@@ -37,7 +37,7 @@ const booksView = {
             return this.$store.state.user;
         },
         books() {
-            return this.$store.state.books.filter(book => !((book ? book.login : null) === this.$store.state.user.displayName &&
+            return this.$store.state.books.filter(book => !((book ? book.login : null) === (this.$store.state.user && this.$store.state.user.displayName) &&
                 book.action === 'checkout'));
         },
         totalCount() {

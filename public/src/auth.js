@@ -3,9 +3,9 @@ const template = `
             <dialog :open="opened" class="auth-dialog">
                 <h2>Вход в библиотеку</h2>
                 <form @submit="processCode" v-if="!username">
-                    <h3 for="">Логин в Slack</h3>
+                    <h3 for="">UserId Slack</h3>
                     <div class="flex">
-                        <input v-if="!loginAttempt" class="input" type="text" v-model="login" placeholder="username"/>
+                        <input v-if="!loginAttempt" class="input" type="text" v-model="login" placeholder="UserId"/>
                         <input v-if="loginAttempt" class="input" type="text" v-model="code" placeholder="Код"/>
                         <button>
                             <span v-if="!loginAttempt">Отправить ссылку</span>
@@ -18,6 +18,13 @@ const template = `
                         </a>
                     </p>
                 </form>
+                <label class="gray-text" for="helpshown">
+                    Что такое UserId?
+                    <input class="hidden-checkbox" type="checkbox" id="helpshown" v-model="helpshown" />
+                </label>
+                <p v-if="helpshown">
+                    <img src="/img/copy-user-id.gif" alt="" />
+                </p>
                 <p class="gray-text">
                     После нажатия кнопки вам прийдет персональная ссылка от SlackBot, перейдя по которой вы зайдете в свою учетку.
                 </p>
@@ -32,6 +39,7 @@ const authView = {
         return {
             login: '',
             code: '',
+            helpshown: false,
             opened: true
         };
     },
